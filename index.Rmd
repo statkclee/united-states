@@ -47,8 +47,15 @@ deep_learning_list <- list(
   tibble(
     title = "회귀모형",
     image = "assets/favicon-regression.png",
-    text = "다양한 회귀모형",
+    text = "선형 회귀모형",
     link = "01_linear_regression.html",
+    footer = "2022-06-22"
+  ),
+  tibble(
+    title = "딥러닝 개념",
+    image = "assets/favicon-logistic.png",
+    text = "신경망, 로지스틱 회귀모형",
+    link = "00_concept.html",
     footer = "2022-06-22"
   )
 )
@@ -70,6 +77,12 @@ deep_learning_tbl %>%
   )
 ```
  
+# 관련 정보
+
+- [$LaTeX$ - Equation Editor](https://www.codecogs.com/latex/eqneditor.php)
+- [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
+
+
 
 
 # 후원

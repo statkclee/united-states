@@ -37,44 +37,133 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE,
 library(tidyverse)
 ```
 
-
-
-# 아키텍쳐 [^nn-architecture] {#neural-network-architecture}
-
+# 신경망 모형 [^nn-architecture] {.tabset}
 
 [^nn-architecture]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
 
+
+## 뇌신경
+
+![](assets/neural_network/neuron_wiki.png){width=100%}
+
+
+## 신경망 모사 {#neural-network-architecture}
+
+
 ![](assets/neural_network.jpg){width=100%}
 
+## 수식
+
+$$
+x \beta = \beta_0 + \beta_1X_i + \cdots + \beta_nX_n \\
+$$
+$$
+prob = {\frac{exp(x\beta)}{1 + exp (x\beta)}} 
+$$
+
+$$
+prob = \frac{exp( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n )}
+       {1 + exp ( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n)} 
+$$
+
+$$
+prob = \frac {1} {1 + e^{ -( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n) }} 
+$$
+
+# 이항 회귀모형 {.tabset}
+
+## 데이터
 
 ```{r}
-source("script/neural_network.R")
+library(tidyverse)
+library(rvest)
 
+lr_data_url <- "https://en.wikipedia.org/wiki/Logistic_regression"
 
-# Predictor variable as a set of uniform rv's over the interval [-2, 2]
-x <- runif(60, min=-2, max=2)
+lr_data_raw <- read_html(x = lr_data_url) %>% 
+  html_elements(".wikitable") %>% 
+  html_table() %>% 
+  .[[1]] 
 
-# Response variable
-y_resp <- function(x) {
+lr_tbl <- lr_data_raw %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(-x1) %>% 
+  mutate(구분 = ifelse(str_detect(x1, "Hours"), "학습시간", "입학여부")) %>% 
+  select(name, 구분, value) %>% 
+  pivot_wider(names_from = 구분, values_from = value)  %>% 
+  select(학습시간, 입학여부)
 
-  Y = (cos(2*x + 1))
+# fs::dir_create("data")
 
-  return(Y)
-
-}
-
-y <- y_resp(x)
-
-# Running SGD function to obtain our optimized mode and parameters
-model <- SGD(x, y, w1, w2, sigmoid, derivativeActivation,
-             learnRate = 0.01, epochs = 200)
-
-model
+lr_tbl %>% 
+  write_rds("data/lr_tbl.rds")
 
 ```
 
+### 요약 통계량
+
+```{r summary-stat}
+lr_tbl <- 
+  read_rds("data/lr_tbl.rds")
+
+lr_tbl %>% 
+  skimr::skim()
+```
+
+## 시각화
+
+```{r visualization-lr}
+
+lr_tbl %>% 
+  ggplot(aes(x = 학습시간, y = 입학여부)) +
+    geom_point() +
+    geom_smooth(method = "glm", 
+      method.args = list(family = "binomial"), 
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+```
 
 
+## 모형
+
+```{r}
+adm_lr <- glm(입학여부 ~ 학습시간, family = "binomial", data = lr_tbl)
+
+adm_lr
+```
+
+
+## 합격 예측
+
+```{r}
+library(crosstalk)
+
+crosstalk_lr_raw <- tibble( 학습시간 = seq(from = 1, to = 5, 0.1) )
+
+crosstalk_lr_tbl <- crosstalk_lr_raw %>% 
+  mutate(합격확률 = predict(adm_lr, newdata = crosstalk_lr_raw, type = "response" )) %>% 
+  left_join(lr_tbl) %>% 
+  mutate(입학여부 = factor(입학여부, levels = c(0, 1), labels = c("불합격", "합격")) )
+
+crosstalk_lr_g <- crosstalk_lr_tbl %>% 
+    ggplot(aes(x = 학습시간, y = 합격확률) ) +
+      geom_point() +
+      geom_point(aes(x = 학습시간, y = as.numeric(입학여부) - 1, color = 입학여부 ) ) +
+      geom_smooth(method = "glm", method.args = list(family = "binomial"),
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+
+plotly::ggplotly(crosstalk_lr_g )
+
+```
 
 
 
