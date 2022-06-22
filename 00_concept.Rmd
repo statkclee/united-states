@@ -1,0 +1,81 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "개념"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+
+
+# 아키텍쳐 [^nn-architecture] {#neural-network-architecture}
+
+
+[^nn-architecture]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
+
+![](assets/neural_network.jpg){width=100%}
+
+
+```{r}
+source("script/neural_network.R")
+
+
+# Predictor variable as a set of uniform rv's over the interval [-2, 2]
+x <- runif(60, min=-2, max=2)
+
+# Response variable
+y_resp <- function(x) {
+
+  Y = (cos(2*x + 1))
+
+  return(Y)
+
+}
+
+y <- y_resp(x)
+
+# Running SGD function to obtain our optimized mode and parameters
+model <- SGD(x, y, w1, w2, sigmoid, derivativeActivation,
+             learnRate = 0.01, epochs = 200)
+
+model
+
+```
+
+
+
+
+
+

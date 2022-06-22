@@ -1,0 +1,81 @@
+---
+layout: page
+title: "딥러닝"
+subtitle: "20분만에 끝내는 딥러닝"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(here)
+```
+
+
+# 학습목차
+
+
+```{r deep-learing-list}
+library(tidyverse)
+library(bs4cards)
+
+deep_learning_list <- list(
+  tibble(
+    title = "회귀모형",
+    image = "assets/favicon-regression.png",
+    text = "다양한 회귀모형",
+    link = "01_linear_regression.html",
+    footer = "2022-06-22"
+  )
+)
+
+
+deep_learning_tbl <- deep_learning_list %>% 
+  enframe() %>% 
+  unnest(value)
+
+deep_learning_tbl %>% 
+  cards(
+    title = title,
+    text = text,
+    link = link,
+    image = image,
+    footer = footer,
+    layout = "label-left", 
+    width = 3
+  )
+```
+
+
+
+# 후원
+
+이 프로그램은 과학기술진흥기금 및 복권기금의 재원으로 운영되고,과학기술정보통신부와 한국과학창의재단의 지원을 받아 수행된 성과물로 우리나라의 과학기술 발전과 사회적 가치 증진에 기여하고 있습니다. 성균관대학교 경제학과, 한밭대학교 창업경영학과에서 장소를 지원해 주셨으며, 대전과학문화거점센터 지원도 받았음을 밝혀둡니다.
+
+![](assets/sponsors.jpg)
+
+

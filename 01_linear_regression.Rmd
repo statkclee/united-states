@@ -1,0 +1,287 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "회귀모형"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: blue
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+library(rvest)
+
+```
+
+
+
+# 회귀모형 [^latex-notation] {#linear-regression}
+
+[^latex-notation]: [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
+
+[회귀분석 사례](https://en.wikipedia.org/wiki/Simple_linear_regression#Numerical_example)
+
+
+
+
+```{r regression, eval = FALSE}
+library(tidyverse)
+library(rvest)
+
+data_url <- "https://en.wikipedia.org/wiki/Simple_linear_regression"
+
+data_raw <- read_html(x = data_url) %>% 
+  html_elements(".wikitable") %>% 
+  html_table() %>% 
+  .[[1]] 
+
+reg_tbl <- data_raw %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(-x1) %>% 
+  mutate(구분 = ifelse(str_detect(x1, "Height"), "신장", "몸무게")) %>% 
+  select(name, 구분, value) %>% 
+  pivot_wider(names_from = 구분, values_from = value)  %>% 
+  select(신장, 몸무게)
+
+fs::dir_create("data")
+
+reg_tbl %>% 
+  write_rds("data/reg_tbl.rds")
+
+```
+
+## 모형 개발 전 {.tabset}
+
+### 원데이터
+
+```{r}
+
+reg_tbl <-  
+  read_rds("data/reg_tbl.rds")
+
+reg_tbl %>% 
+  reactable::reactable()
+```
+
+### 요약 통계량
+
+```{r summary-stat}
+reg_tbl %>% 
+  skimr::skim()
+```
+
+### 시각화
+
+```{r viz}
+reg_tbl %>% 
+  ggplot(aes(x = 신장, y= 몸무게)) +
+    geom_point() +
+    labs(title = "선형 회귀모형 예제 데이터",
+         x = "신장 (cm)",
+         y = "몸무게 (kg)") +
+    theme_light()
+```
+
+
+# 수식으로 표현
+
+## 점화식 수식 {.tabset}
+
+### 수식
+
+신장($X$)과 몸무게($Y$) 관계를 수식으로 표현
+
+$$
+\begin{equation}
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i
+\end{equation}
+$$
+
+데이터를 통해 신장($X$)과 몸무게($Y$) 관계를 추정한 수식
+
+$$
+\begin{equation}
+\hat{몸무게}_i = \hat{\beta}_0 + \hat{\beta}_1 {신장}_i + \hat{\epsilon}_i
+\end{equation}
+$$
+
+### 미지수 추정
+
+미지수 $\hat{\beta}_0$, $\hat{\beta}_1$ 를 데이터를 이용하여 추정
+
+
+$$
+\begin{equation}
+\hat{\beta}_1 = \frac{\sum(X_i – \bar{X}) (Y_i – \bar{Y})} {\sum(X_i – \bar{X})^2}
+\end{equation}
+$$
+
+
+
+$$
+\begin{equation}
+\hat{\beta}_0 = \bar{Y} – \hat{\beta}_1 \bar{X}
+\end{equation}
+$$
+
+### 위키 사례
+
+$$
+\begin{align*}
+\mathrm{몸무게}_{i} = \beta_{0} 
+    &+ \beta_{1} \times \mathrm{신장}_{i} + \epsilon
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\mathrm{몸무게}_{i} = -39.06 
+    &+ 61.27 \times  \mathrm{신장}_{i} + \epsilon
+\end{align*}
+$$
+
+## 행렬 수식 {.tabset}
+
+### 행렬 표현
+
+
+$$
+\left[ 
+  \begin{array}{c} y_1 \\
+                   y_2 \\
+                   \vdots \\
+                   y_n \end{array} \right] = 
+  \begin{bmatrix} 1 & x_1 \\ 
+                  1 & x_2 \\
+                  \vdots & \vdots \\
+                  1 & x_n 
+                  \end{bmatrix} \times 
+  \left[ \begin{array}{c} \beta_0 \\ 
+                          \beta_1 \end{array} \right]  +
+  \left[ \begin{array}{c} \epsilon_1 \\
+                          \epsilon_2 \\
+                          \vdots \\
+                          \epsilon_n \end{array} \right] 
+$$
+
+
+$$
+\begin{gather}
+Y = X \beta + \epsilon
+\end{gather}
+$$
+
+### 행렬 방정식 풀기
+
+
+$$
+\begin{gather}
+Y = X \beta + \epsilon \\
+ \beta = (X^{T}X)^{-1}X^{T}Y
+\end{gather}
+$$
+
+### 행렬 프로그래밍 코드
+
+```{r}
+
+# Y -----------
+Y <- reg_tbl$몸무게
+
+
+# X -----------
+intercept <- rep(1, length(Y))
+X <- cbind(beta_0 = intercept, beta_1 = reg_tbl$신장)
+
+
+betas <- solve(t(X) %*% X) %*% t(X) %*% Y
+
+betas
+```
+
+### 회귀분석 프로그램
+
+```{r}
+lm(몸무게 ~ 신장, data = reg_tbl)
+```
+
+
+## 최적화 함수 {.tabset}
+
+### 오차 함수 
+
+$$
+\min_{\beta} \sum_{i=1}^{n} \epsilon_i = \min_{\beta} \sum_{i=1}^{n}(\beta_0 + \beta_1 \times x_i - y_i)^2 
+$$
+
+
+### 오차 최소화
+
+```{r}
+# reg_tbl
+# # A tibble: 15 × 2
+#     신장 몸무게
+#    <dbl>  <dbl>
+#  1  1.47   52.2
+#  2  1.5    53.1
+#  3  1.52   54.5
+#  4  1.55   55.8
+
+loss_fn <- function(par, data){ 
+  
+  sum((par[1] + par[2] * data$신장 - data$몸무게)^2)
+}
+
+optim(par = c(0, 1), fn = loss_fn, method = "BFGS", data = reg_tbl,
+      control = list(maxit = 1000, 
+                     trace = TRUE,
+                     REPORT = 1))
+```
+
+
+
+# 회귀모형 검정 
+
+```{r}
+reg_tbl %>% 
+  ggplot(aes(x = 신장, y= 몸무게)) +
+    geom_point() +
+    labs(title = "선형 회귀모형 예제 데이터",
+         x = "신장 (cm)",
+         y = "몸무게 (kg)") +
+    theme_light() +
+    geom_smooth(method = "lm", se = FALSE, formula =  y ~ x ) +
+    ggpmisc::stat_poly_eq(aes(label = paste(..eq.label.., sep = "~~~")), 
+               label.x.npc = "right", label.y.npc = 0.15,
+               eq.with.lhs = "italic(hat(y))~`=`~",
+               eq.x.rhs = "~italic(x)",
+               formula = y ~ x, parse = TRUE, size = 5) 
+    
+```
+
+
+
