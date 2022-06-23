@@ -113,46 +113,6 @@ framework_kr_raw$interest_over_time  %>%
     theme(legend.position = "top")
 ```
 
-# tensorflow {#framework-tensorflow}
-
-```{r, eval = FALSE}
-library(tidyverse)
-library(tensorflow)
-# install_tensorflow(envname = "tf")
-
-lr_tbl <-read_rds("data/lr_tbl.rds")
-
-# 1. 설정 ---------------
-beta0 <- tf$Variable(0.0, name="b0")
-beta1 <- tf$Variable(0.0, name="b1")
-X <- tf$Variable(lr_tbl$학습시간, dtype=tf$float32, name = "x-data")
-Y <- tf$Variable(lr_tbl$입학여부, dtype=tf$float32, name = "y-data")
-
-# 2. 손실함수 정의 -----
-loss <- tf$reduce_sum(-Y*(beta0+beta1*X)+tf$math$log(1+tf$exp(beta0+beta1*X)))
-
-# 3. 최적화 ------------
-optimizer <- tf$optimizers$Adam(learning_rate=0.001)
-
-train <- optimizer$minimize(loss, var_list = list(X, Y))
-
-
-# Launch the graph and initialize the variables.
-sess = tf$Session()
-sess$run(tf$global_variables_initializer())
-
-#Create dictionary to feed the data to optimize the coefficients
-fd <- dict(X = x_data, Y = y_data)
-
-# Fit the line
-n_iter <- 10000
-for (step in 1:n_iter) {
-  sess$run(train, feed_dict=fd)
-  if (step %% 1000 == 0 | step <=5)
-    cat(step, "\t", sess$run(beta0), sess$run(beta1), "\n")
-}
-```
-
 
 # 케라스 {.tabset}
 
