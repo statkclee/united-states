@@ -1,0 +1,250 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "개념"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# 이항 회귀모형 {.tabset}
+
+## 데이터
+
+```{r wiki-logistic, eval = FALSE}
+library(tidyverse)
+library(rvest)
+
+lr_data_url <- "https://en.wikipedia.org/wiki/Logistic_regression"
+
+lr_data_raw <- read_html(x = lr_data_url) %>% 
+  html_elements(".wikitable") %>% 
+  html_table() %>% 
+  .[[1]] 
+
+lr_tbl <- lr_data_raw %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(-x1) %>% 
+  mutate(구분 = ifelse(str_detect(x1, "Hours"), "학습시간", "입학여부")) %>% 
+  select(name, 구분, value) %>% 
+  pivot_wider(names_from = 구분, values_from = value)  %>% 
+  select(학습시간, 입학여부)
+
+# fs::dir_create("data")
+
+lr_tbl %>% 
+  write_rds("data/lr_tbl.rds")
+
+```
+
+
+```{r}
+
+lr_tbl <-read_rds("data/lr_tbl.rds")
+
+lr_tbl %>% 
+  reactable::reactable()
+
+```
+
+
+## 요약 통계량
+
+```{r summary-stat}
+
+lr_tbl %>% 
+  skimr::skim()
+```
+
+## 시각화
+
+```{r visualization-lr}
+
+lr_tbl %>% 
+  ggplot(aes(x = 학습시간, y = 입학여부)) +
+    geom_point() +
+    geom_smooth(method = "glm", 
+      method.args = list(family = "binomial"), 
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+```
+
+
+## 내장 모형 활용
+
+```{r}
+adm_lr <- glm(입학여부 ~ 학습시간, family = "binomial", data = lr_tbl)
+
+adm_lr
+```
+
+
+## 합격 예측 시각화
+
+```{r}
+library(crosstalk)
+
+crosstalk_lr_raw <- tibble( 학습시간 = seq(from = 1, to = 5, 0.1) )
+
+crosstalk_lr_tbl <- crosstalk_lr_raw %>% 
+  mutate(합격확률 = predict(adm_lr, newdata = crosstalk_lr_raw, type = "response" )) %>% 
+  left_join(lr_tbl) %>% 
+  mutate(입학여부 = factor(입학여부, levels = c(0, 1), labels = c("불합격", "합격")) )
+
+crosstalk_lr_g <- crosstalk_lr_tbl %>% 
+    ggplot(aes(x = 학습시간, y = 합격확률) ) +
+      geom_point() +
+      geom_point(aes(x = 학습시간, y = as.numeric(입학여부) - 1, color = 입학여부 ) ) +
+      geom_smooth(method = "glm", method.args = list(family = "binomial"),
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+
+plotly::ggplotly(crosstalk_lr_g )
+
+```
+
+## 직접 구현 
+
+최우추정량(MLE)을 찾는 것은 - 우도(Likelihood)값을 구하는 것과 동일하기 General-purpose optimization 에 함수를 정의해서 모수 초기화하여 함께 넣어 반복적으로 근사시켜 모수를 계산한다.
+
+$$
+NLL(y) = -{\log(p(y))}
+$$
+
+$$
+\min_{\theta} \sum_y {-\log(p(y;\theta))} 
+$$
+
+$$
+\max_{\theta} \prod_y p(y;\theta)
+$$
+
+
+```{r logistic-regression-from-scratch}
+sigmoid_fn <-  function(x){
+  
+  1/(1+exp(-x))
+  
+}
+
+neg_log_likelihood <- function(par, data, y, include_alpha = T) {
+  
+  # 출력변수 정의
+  x <- data[,names(data) != y]
+  y_data <- data[,y]
+
+  # 1. 선형결합
+  if( include_alpha ){
+
+    # 선형결합: beta_1 * x_1 + beta_2 * x_2 + ...
+    linear_combination <- mapply("*", x, par[2:length(par)])
+
+    # 알파(편향) 계수 결합 : alpha + beta_1 * x_1 + beta_2 * x_2 + ...
+    theta <-  rowSums(linear_combination) + par[1]
+  } else {
+    theta <- rowSums(mapply("*", x, par))
+  }
+
+  # 2. 확률 계산
+  p <- sigmoid_fn(theta)
+  # p <- exp(theta) / (1 + exp(theta))
+
+  # 3. 우도값 계산: -log likelihood 
+  value <- - sum(y_data * log(p) + (1-y_data)*log(1-p)) 
+
+  return(value)
+}
+
+library(optimx)
+
+lr_opt <- optimx(
+  par = c(0,0),
+  fn = neg_log_likelihood,
+  data = lr_tbl,
+  y = "입학여부",
+   method = "Nelder-Mead",
+  include_alpha = TRUE,
+  itnmax = 100,
+  control = list(trace = TRUE, all.methods = FALSE)
+)
+
+lr_opt[, 1:5] %>% 
+  as.data.frame() %>% 
+  rownames_to_column("method") %>% 
+  filter(method == "Nelder-Mead") %>% 
+  select(method, p1, p2)
+```
+
+`glm()` 함수로 구현한 것과 값이 동일한지 상호확인한다.
+
+```{r}
+adm_lr$coefficients
+```
+
+## 예측값 생성
+
+
+
+```{r, eval = TRUE}
+predict_fn <- function(x, par){
+
+  if( ncol(x) < length(par) ){
+    theta <- rowSums(mapply("*", x, par[2:length(par)])) +  as.numeric(par[1])
+  } else {
+    theta <- rowSums(mapply("*", x, par))
+  }
+
+  prob <- sigmoid_fn(theta)
+
+  return(prob)
+}
+
+custom_pred <- predict_fn(lr_tbl %>% select(학습시간),  lr_opt[, 1:2])
+
+lr_tbl  %>% 
+  mutate(자체제작_예측 = custom_pred) %>% 
+  mutate(예측 = predict(adm_lr, newdata = lr_tbl %>% select(학습시간), type ="response")) %>% 
+  reactable::reactable()
+
+```
+
+
+

@@ -1,0 +1,276 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "딥러닝 프레임워크"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: blue
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+library(rvest)
+library(gtrendsR)
+```
+
+
+
+# 딥러닝 프레임워크 {#deep-learning-framework}
+
+- [케라스(Keras)](https://keras.io/)
+- [텐서플로우(Tensorflow)](https://www.tensorflow.org/?hl=ko)
+- [파이토치(PyTorch)](https://pytorch.org/)
+- [허깅페이스(Hugging Face)](https://huggingface.co/)
+
+# 구글 추세 {.tabset}
+
+## 전세계 {#google-trends-globa}
+
+```{r global-trends, eval = FALSE}
+library(tidyverse)
+library(gtrendsR)
+
+framework_raw <- gtrends(keyword = c("keras", "tensorflow", "pytorch", "huggingface"),
+                    # geo = "KR", 
+                    # hl = "ko-KR",
+                    time = "today+5-y")
+
+framework_raw %>% 
+  write_rds("data/framework_raw.rds")
+```
+
+
+```{r}
+
+framework_raw <- 
+  read_rds("data/framework_raw.rds")
+
+framework_raw$interest_over_time  %>% 
+  as_tibble() %>% 
+  mutate(hits = as.integer(hits)) %>% 
+  mutate(keyword = factor(keyword, levels = c("keras", "pytorch", "tensorflow", "huggingface"))) %>% 
+  ggplot(aes(x = date, y = hits, group = keyword, color = keyword)) +
+    geom_line() +
+    labs(x = "", y = "검색수", 
+         title = "[전세계] 딥러닝 프레임워크 구글 검색 추세",
+         color = "프레임워크") +
+    theme_light() +
+    theme(legend.position = "top")
+
+```
+
+## 대한민국 {#google-trends-korea}
+
+```{r global-trends-korea, eval = FALSE}
+
+framework_kr_raw <- gtrends(keyword = c("keras", "tensorflow", "pytorch", "huggingface"),
+                    geo = "KR", 
+                    hl = "ko-KR",
+                    time = "today+5-y")
+
+framework_kr_raw %>% 
+  write_rds("data/framework_kr_raw.rds")
+```
+
+```{r}
+
+framework_kr_raw <- 
+  read_rds("data/framework_kr_raw.rds")
+
+framework_kr_raw$interest_over_time  %>% 
+  as_tibble() %>% 
+  mutate(hits = as.integer(hits)) %>% 
+  mutate(keyword = factor(keyword, levels = c("pytorch", "tensorflow","keras",  "huggingface"))) %>% 
+  ggplot(aes(x = date, y = hits, group = keyword, color = keyword)) +
+    geom_line() +
+    labs(x = "", y = "검색수", 
+         title = "[대한민국] 딥러닝 프레임워크 구글 검색 추세",
+         color = "프레임워크") +
+    theme_light() +
+    theme(legend.position = "top")
+```
+
+# tensorflow {#framework-tensorflow}
+
+```{r, eval = FALSE}
+library(tidyverse)
+library(tensorflow)
+# install_tensorflow(envname = "tf")
+
+lr_tbl <-read_rds("data/lr_tbl.rds")
+
+# 1. 설정 ---------------
+beta0 <- tf$Variable(0.0, name="b0")
+beta1 <- tf$Variable(0.0, name="b1")
+X <- tf$Variable(lr_tbl$학습시간, dtype=tf$float32, name = "x-data")
+Y <- tf$Variable(lr_tbl$입학여부, dtype=tf$float32, name = "y-data")
+
+# 2. 손실함수 정의 -----
+loss <- tf$reduce_sum(-Y*(beta0+beta1*X)+tf$math$log(1+tf$exp(beta0+beta1*X)))
+
+# 3. 최적화 ------------
+optimizer <- tf$optimizers$Adam(learning_rate=0.001)
+
+train <- optimizer$minimize(loss, var_list = list(X, Y))
+
+
+# Launch the graph and initialize the variables.
+sess = tf$Session()
+sess$run(tf$global_variables_initializer())
+
+#Create dictionary to feed the data to optimize the coefficients
+fd <- dict(X = x_data, Y = y_data)
+
+# Fit the line
+n_iter <- 10000
+for (step in 1:n_iter) {
+  sess$run(train, feed_dict=fd)
+  if (step %% 1000 == 0 | step <=5)
+    cat(step, "\t", sess$run(beta0), sess$run(beta1), "\n")
+}
+```
+
+
+# 케라스 {.tabset}
+
+## 카라스 코드
+
+```{r}
+# 0. keras 와 tensorflow 패키지
+library(keras)
+
+# 1. 모형 아키텍처 정의
+logistic_reg <- keras_model_sequential() %>%
+  layer_dense(units = 1,
+              input_shape = 1,
+              activation = "sigmoid")
+
+# 모형 컴파일
+logistic_reg %>% 
+  compile(
+    loss = "binary_crossentropy",
+    optimizer = optimizer_adam(learning_rate = 0.01),
+    metrics = list("accuracy")
+  )
+
+# 모형살펴보기
+summary(logistic_reg)
+
+# 데이터 
+lr_raw <-read_rds("data/lr_tbl.rds")
+
+# 정규화 전처리 과정 
+lr_tbl <- lr_raw %>% 
+  mutate(학습시간 = scale(학습시간) )
+
+# select predictor (x) and dependent variable (y) and convert to matrix
+x_train <- as.matrix(lr_tbl %>% select(학습시간))
+y_train <- as.matrix(lr_tbl %>% select(입학여부))
+
+# 모형학습
+history <- logistic_reg %>%  fit(
+  x = x_train,
+  y = y_train,
+  epochs = 500,
+  validation_split = 0,
+  verbose = 0
+)
+
+plot(history)
+
+# 로지스틱 회귀모형 계수
+logistic_reg$weights
+```
+
+
+## 비교 로지스틱 회귀모형
+
+```{r}
+# 비교를 위해 GLM 적합
+glm_fit <- glm(입학여부  ~ scale(학습시간 ), data = lr_tbl, family = binomial)
+glm_fit
+```
+
+
+## 성능 비교
+
+`tensorflow` ... `keras` 프레임워크 사용
+
+```{r}
+library(yardstick)
+
+# 합격여부 예측
+keras_pred_tbl <- lr_tbl %>% 
+  mutate(predicted_tf = predict(logistic_reg, x_train),
+         class_tf     = ifelse(predicted_tf < 0.5, 0, 1)) %>% 
+  mutate(입학여부 = factor(입학여부),
+         class_tf = factor(class_tf))
+
+keras_pred_tbl %>% 
+  conf_mat(truth = 입학여부, estimate = class_tf,
+           dnn = c("예측값", "참값"))
+
+keras_pred_tbl %>% 
+  accuracy(truth = 입학여부, estimate = class_tf)
+
+```
+
+GLM 로지스틱 모형 사용
+
+```{r}
+glm_fit <- glm(입학여부  ~ scale(학습시간 ), data = lr_tbl, family = binomial)
+glm_fit
+
+lr_pred_tbl <- lr_tbl %>% 
+  mutate(predicted_lr = predict(glm_fit, newdata=lr_tbl, type = "response")) %>% 
+  mutate(class_lr     = ifelse(predicted_lr < 0.5, 0, 1))  %>% 
+  mutate(입학여부 = factor(입학여부),
+         class_lr = factor(class_lr))
+  
+lr_pred_tbl %>% 
+  conf_mat(truth = 입학여부, estimate = class_lr,
+           dnn = c("예측값", "참값"))
+
+lr_pred_tbl %>% 
+  accuracy(truth = 입학여부, estimate = class_lr)
+```
+
+
+## 배포
+
+```{r}
+# hdf5 format 내보내기
+save_model_hdf5(logistic_reg, 'data/keras_lr_model.h5')
+
+# 모형 불러오기
+library(keras)
+lr_model <- load_model_hdf5('data/keras_lr_model.h5')
+
+# 신규 데이터 예측활용
+lr_model$weights
+predict(lr_model, scale(c(0.1, 5, 10)))
+```
+
