@@ -165,5 +165,114 @@ plotly::ggplotly(crosstalk_lr_g )
 
 ```
 
+## 구현 
+
+최우추정량(MLE)을 찾는 것은 - 우도(Likelihood)값을 구하는 것과 동일하기 General-purpose optimization 에 함수를 정의해서 모수 초기화하여 함께 넣어 반복적으로 근사시켜 모수를 계산한다.
+
+$$
+NLL(y) = -{\log(p(y))} \\
+
+\min_{\theta} \sum_y {-\log(p(y;\theta))} \\
+
+\max_{\theta} \prod_y p(y;\theta)
+$$
+
+
+```{r logistic-regression-from-scratch}
+sigmoid_fn <-  function(x){
+  
+  1/(1+exp(-x))
+  
+}
+
+neg_log_likelihood <- function(par, data, y, include_alpha = T) {
+  
+  # 출력변수 정의
+  x <- data[,names(data) != y]
+  y_data <- data[,y]
+
+  # 1. 선형결합
+  if( include_alpha ){
+
+    # 선형결합: beta_1 * x_1 + beta_2 * x_2 + ...
+    linear_combination <- mapply("*", x, par[2:length(par)])
+
+    # 알파(편향) 계수 결합 : alpha + beta_1 * x_1 + beta_2 * x_2 + ...
+    theta <-  rowSums(linear_combination) + par[1]
+  } else {
+    theta <- rowSums(mapply("*", x, par))
+  }
+
+  # 2. 확률 계산
+  p <- sigmoid_fn(theta)
+  # p <- exp(theta) / (1 + exp(theta))
+
+  # 3. 우도값 계산: -log likelihood 
+  value <- - sum(y_data * log(p) + (1-y_data)*log(1-p)) 
+
+  return(value)
+}
+
+library(optimx)
+
+lr_opt <- optimx(
+  par = c(0,0),
+  fn = neg_log_likelihood,
+  data = lr_tbl,
+  y = "입학여부",
+   method = "Nelder-Mead",
+  include_alpha = TRUE,
+  itnmax = 100,
+  control = list(trace = TRUE, all.methods = FALSE)
+)
+
+lr_opt[, 1:5] %>% 
+  as.data.frame() %>% 
+  rownames_to_column("method") %>% 
+  filter(method == "Nelder-Mead") %>% 
+  select(method, p1, p2)
+```
+
+`glm()` 함수로 구현한 것과 값이 동일한지 상호확인한다.
+
+```{r}
+adm_lr$coefficients
+```
+
+## 예측함수
+
+```{r, eval = FALSE}
+predict_fn <- function(x, par){
+
+  if( ncol(x) < length(par) ){
+    theta <- rowSums(mapply("*",x,par[2:length(par)])) +  par[1]
+  } else {
+    theta <- rowSums(mapply("*",x,par))
+  }
+
+  prob <- sigmoid_fn(theta)
+
+  return(prob)
+}
+
+for(i in 1:nrow(lr_tbl)) {
+  predict_fn(lr_tbl %>% select(학습시간) %>% slice(i), lr_opt[, 1:2])
+}
+
+predict_fn(lr_tbl$학습시간, lr_opt[, 1:2])
+
+ncol(lr_tbl %>% select(학습시간) )
+
+length(lr_opt[, 1:2])
+
+predict_fn(lr_tbl %>% select(학습시간) %>% slice(2), lr_opt[, 1:2])
+
+lr_tbl_pred <- lr_tbl %>% select(-입학여부) %>% 
+  mutate(par = lr_opt[, 1:2])
+
+lr_tbl_pred %>% 
+  mutate(pred = map2(학습시간, par, predict_fn) )
+
+```
 
 

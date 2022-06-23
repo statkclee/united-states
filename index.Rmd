@@ -81,7 +81,7 @@ deep_learning_tbl %>%
 
 - [$LaTeX$ - Equation Editor](https://www.codecogs.com/latex/eqneditor.php)
 - [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
-
+- [How to code a logistic regression in R from scratch](https://anderfernandez.com/en/blog/code-logistic-regression-r-from-scratch/)
 
 
 
