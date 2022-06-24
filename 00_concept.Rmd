@@ -104,7 +104,7 @@ $$
 
 ![](assets/latex/RNN.png)
 
----
+## 자연어 처리 (LSTM)
 
 ![](assets/latex/LSTM.png)
 

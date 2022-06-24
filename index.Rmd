@@ -74,7 +74,7 @@ deep_learning_list <- list(
   ),
   tibble(
     title = "RNN",
-    image = "assets/favicon-framework.png",
+    image = "assets/favicon-RNN.png",
     text = "순환 신경망(Recurrent Neural Network)",
     link = "10_RNN.html",
     footer = "2022-06-23"
@@ -106,6 +106,9 @@ deep_learning_tbl %>%
 - [How to code a logistic regression in R from scratch](https://anderfernandez.com/en/blog/code-logistic-regression-r-from-scratch/)
 - [THE ASIMOV INSTITUTE, THE NEURAL NETWORK ZOO](https://www.asimovinstitute.org/neural-network-zoo/)
 - [NN-SVG: Publication-ready NN-architecture schematics](https://alexlenail.me/)
+- [A visual guide to Recurrent Neural Networks](https://www.analyticsvidhya.com/blog/2021/06/a-visual-guide-to-recurrent-neural-networks/)
+- [Time Series Prediction with LSTM Recurrent Neural Networks in Python with Keras](https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/)
+
 
 # 후원
 
