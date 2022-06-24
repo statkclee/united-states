@@ -59,9 +59,9 @@ deep_learning_list <- list(
     footer = "2022-06-22"
   ),
   tibble(
-    title = "로지스틱 회귀모형",
+    title = "로지스틱 모형",
     image = "assets/favicon-logistic.png",
-    text = "신경망, 로지스틱 회귀모형",
+    text = "로지스틱 회귀모형과 신경망",
     link = "02_logistic_regression.html",
     footer = "2022-06-22"
   ),
@@ -71,7 +71,14 @@ deep_learning_list <- list(
     text = "케라스, 텐서플로우, 파이토치 ...",
     link = "03_framework.html",
     footer = "2022-06-23"
-  )
+  ),
+  tibble(
+    title = "RNN",
+    image = "assets/favicon-framework.png",
+    text = "순환 신경망(Recurrent Neural Network)",
+    link = "10_RNN.html",
+    footer = "2022-06-23"
+  )  
 )
 
 
@@ -98,7 +105,7 @@ deep_learning_tbl %>%
 - [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
 - [How to code a logistic regression in R from scratch](https://anderfernandez.com/en/blog/code-logistic-regression-r-from-scratch/)
 - [THE ASIMOV INSTITUTE, THE NEURAL NETWORK ZOO](https://www.asimovinstitute.org/neural-network-zoo/)
-
+- [NN-SVG: Publication-ready NN-architecture schematics](https://alexlenail.me/)
 
 # 후원
 

@@ -246,5 +246,22 @@ lr_tbl  %>%
 
 ```
 
+# 신경망 
 
 
+```{r}
+library(nnet)
+library(NeuralNetTools)
+
+lr_nn_tbl <- lr_tbl %>% 
+  rename(adm_yn = 입학여부,
+         learning_hour = 학습시간)
+
+adm_nn <- nnet(adm_yn ~ learning_hour,
+               size = 2,
+               softmax = FALSE,
+               data = lr_nn_tbl)
+
+plotnet(adm_nn)
+
+```
