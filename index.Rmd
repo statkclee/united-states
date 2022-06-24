@@ -93,10 +93,11 @@ deep_learning_tbl %>%
  
 # 관련 정보
 
+- [편집기 - https://www.latex4technics.com/](https://www.latex4technics.com/)
 - [$LaTeX$ - Equation Editor](https://www.codecogs.com/latex/eqneditor.php)
 - [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
 - [How to code a logistic regression in R from scratch](https://anderfernandez.com/en/blog/code-logistic-regression-r-from-scratch/)
-
+- [THE ASIMOV INSTITUTE, THE NEURAL NETWORK ZOO](https://www.asimovinstitute.org/neural-network-zoo/)
 
 
 # 후원

@@ -27,17 +27,21 @@ editor_options:
 header-includes: 
   - \usepackage{tikz}
   - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+  - \tikzstyle{mynode}=[thick,draw=blue,fill=blue!20,circle,minimum size=22]  
 ---
 
 ```{r setup, include=FALSE}
 # source("tools/chunk-options.R")
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
-                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+                    comment="", digits = 3, tidy = FALSE, 
+                    prompt = FALSE, fig.align = 'center')
+
+knitr::opts_chunk$set(dev = "tikz")
 
 library(tidyverse)
 ```
 
-# 신경망 모형 [^nn-architecture] {.tabset}
+# 신경망 개념 [^nn-architecture] {.tabset}
 
 [^nn-architecture]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
 
@@ -46,29 +50,79 @@ library(tidyverse)
 
 ![](assets/neural_network/neuron_wiki.png){width=100%}
 
+---
 
-## 신경망 모사 {#neural-network-architecture}
+![](assets/latex/neuron.png)
+
+---
+
+$$
+\text{출력} = \frac{1}
+       {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} }
+$$
 
 
-![](assets/neural_network.jpg){width=100%}
+## 로지스틱 회귀 모형
 
-## 수식
+
+![](assets/latex/logistic-nn.png)
+
+---
 
 $$
 x \beta = \beta_0 + \beta_1X_i + \cdots + \beta_nX_n \\
 $$
 $$
-prob = {\frac{exp(x\beta)}{1 + exp (x\beta)}} 
+\text{활성화 함수} = {\frac{exp(x\beta)}{1 + exp (x\beta)}} = {\frac{1}{1 + exp (-x\beta)}} 
 $$
 
 $$
-prob = \frac{exp( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n )}
-       {1 + exp ( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n)} 
+\text{확률} = \frac{exp( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n )}
+       {1 + exp ( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n)} = \frac{1}
+       {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} }
 $$
 
-$$
-prob = \frac {1} {1 + e^{ -( \beta_0 + \beta_1X_i + \cdots + \beta_nX_n) }} 
-$$
+
+
+## 신경망 모사 {#neural-network-architecture}
+
+
+![](assets/latex/deep-nn.png)
+
+---
+
+![](assets/latex/neural-network-math-notation.png){width=100%}
+
+# 신경망 모형 {.tabset}
+
+
+## 이미지 인식 (CNN)
+
+![](assets/latex/convolution-nn.png)
+
+## 자연어 처리 (RNN)
+
+![](assets/latex/RNN.png)
+
+---
+
+![](assets/latex/LSTM.png)
+
+## BERT
+
+
+
+
+# 딥러닝 구성요소 {.tabset}
+
+## 드롭아웃
+
+![](assets/latex/dropout.png)
+
+
+## 오토인코더
+
+![](assets/latex/autoencoder.png)
 
 
 
