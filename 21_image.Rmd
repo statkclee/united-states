@@ -1,0 +1,102 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "워드 임베딩(Word Embedding)"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# resnet {.tabset}
+
+- [Word Embeddings](https://smltar.com/embeddings.html#glove)
+
+```{r}
+library(textdata)
+library(tidyverse)
+library(tidytext)
+library(widyr)
+
+glove6b <- embedding_glove6b(dimensions = 100)
+glove6b
+
+tidy_glove <- glove6b %>%
+  pivot_longer(contains("d"),
+               names_to = "dimension") %>%
+  rename(item1 = token)
+
+tidy_glove
+
+nearest_neighbors <- function(df, token) {
+  df %>%
+    widely(
+      ~ {
+        y <- .[rep(token, nrow(.)), ]
+        res <- rowSums(. * y) / 
+          (sqrt(rowSums(. ^ 2)) * sqrt(sum(.[token, ] ^ 2)))
+        matrix(res, ncol = 1, dimnames = list(x = names(res)))
+      },
+      sort = TRUE,
+      maximum_size = NULL
+    )(item1, dimension, value) %>%
+    select(-item2)
+}
+
+tidy_glove %>%
+  nearest_neighbors("king")
+
+
+
+```
+
+
+```{r}
+library(keras)
+
+# 이미지 데이터를 TF 넣을 수 있는 `array` 형태로 변환
+flag_img <- image_load("data/flag.png", target_size = c(224,224))
+x <- image_to_array(flag_img)
+
+x <- array_reshape(x, c(1, dim(x)))
+x <- imagenet_preprocess_input(x)
+
+resnet50 <- application_resnet50(weights = "imagenet")
+
+preds <- resnet50 %>% 
+  predict(x) %>% 
+  imagenet_decode_predictions(top = 5)
+
+preds
+
+```
+

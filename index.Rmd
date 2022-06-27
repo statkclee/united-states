@@ -73,11 +73,11 @@ deep_learning_list <- list(
     footer = "2022-06-23"
   ),
   tibble(
-    title = "RNN",
-    image = "assets/favicon-RNN.png",
-    text = "순환 신경망(Recurrent Neural Network)",
-    link = "10_RNN.html",
-    footer = "2022-06-23"
+    title = "NLP",
+    image = "assets/favicon-NLP.png",
+    text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
+    link = "20_NLP.html",
+    footer = "2022-06-27"
   )  
 )
 
