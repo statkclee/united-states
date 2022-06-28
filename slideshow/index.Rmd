@@ -86,87 +86,18 @@ name: data-science-case
 ]
 ] <!--end of right-column-->  
 
+<!--------------------------  1. 자동화 ----------------------------------------->
+
+```{r child='01-automation.Rmd'}
+```
+
+<!--------------------------  2. 딥러닝 ----------------------------------------->
+
+```{r child='02-deep-learning.Rmd'}
+```
+
+<!--------------------------  N. 마무리 ----------------------------------------->
+
 ```{r child='goodbye.Rmd'}
 ```
-
-
----
-name: deep-learning-vs-software
-# 소프트웨어 2.0 vs. 딥러닝 모형
-
-<br>
-<br>
-
-.center[
-![](fig/software-versions.png)
-]
-
-.footnote[
-Domingos, Pedro. The master algorithm: How the quest for the ultimate learning machine will remake our world. Basic Books, 2015.
-]
-
-
----
-name: hidden-technical-debt
-# 기계학습(딥러닝) 기여분
-
-<br>
-<br>
-
-.center[
-![](fig/hidden-technical-debt.png)
-]
-
-.footnote[
-Sculley, David, et al. "Hidden technical debt in machine learning systems." Advances in neural information processing systems 28 (2015).
-]
-
-
----
-name: human-performance
-# 딥러닝 알고리즘 성능
-
-<br>
-<br>
-
-```{r}
-library(tidyverse)
-library(httr)
-library(rvest)
-library(readxl)
-
-sota_raw <- read_excel(glue::glue("{here::here()}/slideshow/data/imagenet.xlsx"),
-                       col_types = rep("text", 12))
-
-sota_tbl <- sota_raw %>% 
-  janitor::clean_names() %>% 
-  mutate(top_5_accuracy = as.numeric(top_5_accuracy),
-         year = as.integer(year)) %>% 
-  mutate(top_5_accuracy = ifelse(top_5_accuracy > 1, top_5_accuracy/100, top_5_accuracy)) %>% 
-  group_by(year) %>% 
-  arrange(desc(top_5_accuracy)) %>% 
-  slice(1) %>% 
-  select(year, model, top_5_accuracy)
-
-
-sota_tbl %>% 
-  ggplot(aes(x = year, y = top_5_accuracy , group = 1)) +
-    geom_point() +
-    geom_line() +
-    scale_y_continuous(labels = scales::percent) +
-    scale_x_continuous(breaks = seq(2011, 2022, by =2)) +
-    geom_hline(yintercept = 0.95, linetype = 2, color = "lightblue") +
-    labs(x = "", 
-         y = "상위 5개 정확도 (%)",
-         title = "ImageNet 이미지 분류") +
-    theme_light() +
-    geom_text(aes(x = 2012, y = 0.95, label = "인간 정확도\n(95%)"), 
-              size = 4.5, color = "blue", fontface = "bold") +
-    ggrepel::geom_text_repel(aes(label = model))
-
-```
-
-.footnote[
-[Image Classification on ImageNet](https://paperswithcode.com/sota/image-classification-on-imagenet)
-]
 
