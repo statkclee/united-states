@@ -45,6 +45,13 @@ library(bs4cards)
 
 deep_learning_list <- list(
   tibble(
+    title = "인공지능과 딥러닝",
+    image = "assets/favicon-ai.png",
+    text = "자동화, 딥러닝, 그리고 인공지능",
+    link = "slideshow/index.html",
+    footer = "2022-06-28"
+  ),
+  tibble(
     title = "딥러닝 개념",
     image = "assets/favicon-logistic.png",
     text = "신경망, 로지스틱 회귀모형",
