@@ -53,24 +53,17 @@ deep_learning_list <- list(
   ),
   tibble(
     title = "딥러닝 개념",
-    image = "assets/favicon-logistic.png",
-    text = "신경망, 로지스틱 회귀모형",
+    image = "assets/favicon-concept.png",
+    text = "Attention, Dropout, ...",
     link = "00_concept.html",
     footer = "2022-06-22"
   ),
   tibble(
-    title = "회귀모형",
-    image = "assets/favicon-regression.png",
-    text = "선형 회귀모형",
-    link = "01_linear_regression.html",
-    footer = "2022-06-22"
-  ),
-  tibble(
-    title = "로지스틱 모형",
-    image = "assets/favicon-logistic.png",
-    text = "로지스틱 회귀모형과 신경망",
-    link = "02_logistic_regression.html",
-    footer = "2022-06-22"
+    title = "통계모형",
+    image = "assets/favicon-statmodel.png",
+    text = "선형 회귀모형, 로지스틱 회귀모형과 신경망",
+    link = "01_stat_models.html",
+    footer = "2022-06-29"
   ),
   tibble(
     title = "딥러닝 프레임워크",

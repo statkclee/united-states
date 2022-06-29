@@ -37,14 +37,6 @@ library(gtrendsR)
 ```
 
 
-
-# 딥러닝 프레임워크 {#deep-learning-framework}
-
-- [케라스(Keras)](https://keras.io/)
-- [텐서플로우(Tensorflow)](https://www.tensorflow.org/?hl=ko)
-- [파이토치(PyTorch)](https://pytorch.org/)
-- [허깅페이스(Hugging Face)](https://huggingface.co/)
-
 # 구글 추세 {.tabset}
 
 ## 전세계 {#google-trends-globa}
@@ -113,10 +105,26 @@ framework_kr_raw$interest_over_time  %>%
     theme(legend.position = "top")
 ```
 
+# DL 프레임워크 선택 [^dl-comparison]
+
+[^dl-comparison]: [PyTorch or TensorFlow? Comparing popular Machine Learning frameworks](https://www.kdnuggets.com/2022/02/packt-pytorch-tensorflow-comparing-popular-machine-learning-frameworks.html)
+
+- 저순위(Low-Level) 딥러닝 프레임워크
+    - [Theano](https://github.com/Theano/Theano/)
+    - [Torch](http://torch.ch/)
+    - [PyTorch](https://pytorch.org/)
+    - [MxNet](https://mxnet.apache.org/)
+    - [TensorFlow](www.tensorflow.org/)
+- 고순위(High-Level) 딥러닝 프레임워크
+    - [Keras](https://keras.io/)
+    - [허깅페이스(Hugging Face)](https://huggingface.co/)
+
+![](assets/deep-learning-framework.png)
+
 
 # 케라스 {.tabset}
 
-## 카라스 코드
+## 카라스 R 코드
 
 ```{r}
 # 0. keras 와 tensorflow 패키지
@@ -166,7 +174,7 @@ logistic_reg$weights
 ```
 
 
-## 비교 로지스틱 회귀모형
+## GLM 통계 R 코드
 
 ```{r}
 # 비교를 위해 GLM 적합
@@ -234,12 +242,6 @@ lr_model$weights
 predict(lr_model, scale(c(0.1, 5, 10)))
 ```
 
-
-# 케라스와 pytorch
-
-- [Keras or PyTorch as your first deep learning framework](https://deepsense.ai/keras-or-pytorch/)
-
-[케라스(Keras)](https://keras.io/)는 플러그-앤-플레이(Plug&Play) 방식으로 사용자 관점에서는 쉽게 딥러닝 모형을 개발을 지원하고 **구글(Google)**에서 이를 운영계로 서비스를 원활히 지원한다. 하지만, 각 블록이 블랙박스 형태로 되어 있다보니 이런 아쉬운 점을 보완해주는 **페이스북(Facebook)**이 지원하는 [파이토치(Pytorch)](https://pytorch.org/)가 수학기반으로 저수준(low-level) 개발을 원하는 사용자에게 선택지를 넓혀졌다는 평가를 받고 있다.
 
 
 

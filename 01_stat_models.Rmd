@@ -1,0 +1,525 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "통계 모형"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: blue
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+library(rvest)
+
+```
+
+
+![](assets/reg/reg2nn.png)
+
+# 선형 회귀모형 [^latex-notation] {#linear-regression}
+
+[^latex-notation]: [Classical ML Equations in LaTeX](https://blmoistawinde.github.io/ml_equations_latex/)
+
+[회귀분석 사례](https://en.wikipedia.org/wiki/Simple_linear_regression#Numerical_example)
+
+
+
+```{r regression, eval = FALSE}
+library(tidyverse)
+library(rvest)
+
+data_url <- "https://en.wikipedia.org/wiki/Simple_linear_regression"
+
+data_raw <- read_html(x = data_url) %>% 
+  html_elements(".wikitable") %>% 
+  html_table() %>% 
+  .[[1]] 
+
+reg_tbl <- data_raw %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(-x1) %>% 
+  mutate(구분 = ifelse(str_detect(x1, "Height"), "신장", "몸무게")) %>% 
+  select(name, 구분, value) %>% 
+  pivot_wider(names_from = 구분, values_from = value)  %>% 
+  select(신장, 몸무게)
+
+fs::dir_create("data")
+
+reg_tbl %>% 
+  write_rds("data/reg_tbl.rds")
+
+```
+
+## 모형 개발 전 {.tabset}
+
+### 원데이터
+
+```{r}
+
+reg_tbl <-  
+  read_rds("data/reg_tbl.rds")
+
+reg_tbl %>% 
+  reactable::reactable()
+```
+
+### 요약 통계량
+
+```{r summary-stat}
+reg_tbl %>% 
+  skimr::skim()
+```
+
+### 시각화
+
+```{r viz}
+reg_tbl %>% 
+  ggplot(aes(x = 신장, y= 몸무게)) +
+    geom_point() +
+    labs(title = "선형 회귀모형 예제 데이터",
+         x = "신장 (cm)",
+         y = "몸무게 (kg)") +
+    theme_light()
+```
+
+
+## 수식으로 표현
+
+### 점화식 수식 {.tabset}
+
+#### 수식
+
+신장($X$)과 몸무게($Y$) 관계를 수식으로 표현
+
+$$
+\begin{equation}
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i
+\end{equation}
+$$
+
+데이터를 통해 신장($X$)과 몸무게($Y$) 관계를 추정한 수식
+
+$$
+\begin{equation}
+\hat{몸무게}_i = \hat{\beta}_0 + \hat{\beta}_1 {신장}_i + \hat{\epsilon}_i
+\end{equation}
+$$
+
+#### 미지수 추정
+
+미지수 $\hat{\beta}_0$, $\hat{\beta}_1$ 를 데이터를 이용하여 추정
+
+
+$$
+\begin{equation}
+\hat{\beta}_1 = \frac{\sum(X_i – \bar{X}) (Y_i – \bar{Y})} {\sum(X_i – \bar{X})^2}
+\end{equation}
+$$
+
+
+
+$$
+\begin{equation}
+\hat{\beta}_0 = \bar{Y} – \hat{\beta}_1 \bar{X}
+\end{equation}
+$$
+
+#### 위키 사례
+
+$$
+\begin{align*}
+\mathrm{몸무게}_{i} = \beta_{0} 
+    &+ \beta_{1} \times \mathrm{신장}_{i} + \epsilon
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\mathrm{몸무게}_{i} = -39.06 
+    &+ 61.27 \times  \mathrm{신장}_{i} + \epsilon
+\end{align*}
+$$
+
+### 행렬 수식 {.tabset}
+
+#### 행렬 표현
+
+
+$$
+\left[ 
+  \begin{array}{c} y_1 \\
+                   y_2 \\
+                   \vdots \\
+                   y_n \end{array} \right] = 
+  \begin{bmatrix} 1 & x_1 \\ 
+                  1 & x_2 \\
+                  \vdots & \vdots \\
+                  1 & x_n 
+                  \end{bmatrix} \times 
+  \left[ \begin{array}{c} \beta_0 \\ 
+                          \beta_1 \end{array} \right]  +
+  \left[ \begin{array}{c} \epsilon_1 \\
+                          \epsilon_2 \\
+                          \vdots \\
+                          \epsilon_n \end{array} \right] 
+$$
+
+
+$$
+\begin{gather}
+Y = X \beta + \epsilon
+\end{gather}
+$$
+
+#### 행렬 방정식 풀기
+
+
+$$
+\begin{gather}
+Y = X \beta + \epsilon \\
+ \beta = (X^{T}X)^{-1}X^{T}Y
+\end{gather}
+$$
+
+#### 행렬 프로그래밍 코드
+
+```{r}
+
+# Y -----------
+Y <- reg_tbl$몸무게
+
+
+# X -----------
+intercept <- rep(1, length(Y))
+X <- cbind(beta_0 = intercept, beta_1 = reg_tbl$신장)
+
+
+betas <- solve(t(X) %*% X) %*% t(X) %*% Y
+
+betas
+```
+
+#### 회귀분석 프로그램
+
+```{r}
+lm(몸무게 ~ 신장, data = reg_tbl)
+```
+
+
+## 최적화 함수 {.tabset}
+
+### 오차 함수 
+
+$$
+\min_{\beta} \sum_{i=1}^{n} \epsilon_i = \min_{\beta} \sum_{i=1}^{n}(\beta_0 + \beta_1 \times x_i - y_i)^2 
+$$
+
+
+### 오차 최소화
+
+```{r}
+# reg_tbl
+# # A tibble: 15 × 2
+#     신장 몸무게
+#    <dbl>  <dbl>
+#  1  1.47   52.2
+#  2  1.5    53.1
+#  3  1.52   54.5
+#  4  1.55   55.8
+
+loss_fn <- function(par, data){ 
+  
+  sum((par[1] + par[2] * data$신장 - data$몸무게)^2)
+}
+
+optim(par = c(0, 1), fn = loss_fn, method = "BFGS", data = reg_tbl,
+      control = list(maxit = 1000, 
+                     trace = TRUE,
+                     REPORT = 1))
+```
+
+
+
+## 회귀모형 검정 
+
+```{r}
+reg_tbl %>% 
+  ggplot(aes(x = 신장, y= 몸무게)) +
+    geom_point() +
+    labs(title = "선형 회귀모형 예제 데이터",
+         x = "신장 (cm)",
+         y = "몸무게 (kg)") +
+    theme_light() +
+    geom_smooth(method = "lm", se = FALSE, formula =  y ~ x ) +
+    ggpmisc::stat_poly_eq(aes(label = paste(..eq.label.., sep = "~~~")), 
+               label.x.npc = "right", label.y.npc = 0.15,
+               eq.with.lhs = "italic(hat(y))~`=`~",
+               eq.x.rhs = "~italic(x)",
+               formula = y ~ x, parse = TRUE, size = 5) 
+    
+```
+
+
+# 이항 회귀모형 {.tabset}
+
+## 데이터
+
+```{r wiki-logistic, eval = FALSE}
+library(tidyverse)
+library(rvest)
+
+lr_data_url <- "https://en.wikipedia.org/wiki/Logistic_regression"
+
+lr_data_raw <- read_html(x = lr_data_url) %>% 
+  html_elements(".wikitable") %>% 
+  html_table() %>% 
+  .[[1]] 
+
+lr_tbl <- lr_data_raw %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(-x1) %>% 
+  mutate(구분 = ifelse(str_detect(x1, "Hours"), "학습시간", "입학여부")) %>% 
+  select(name, 구분, value) %>% 
+  pivot_wider(names_from = 구분, values_from = value)  %>% 
+  select(학습시간, 입학여부)
+
+# fs::dir_create("data")
+
+lr_tbl %>% 
+  write_rds("data/lr_tbl.rds")
+
+```
+
+
+```{r}
+
+lr_tbl <-read_rds("data/lr_tbl.rds")
+
+lr_tbl %>% 
+  reactable::reactable()
+
+```
+
+
+## 요약 통계량
+
+```{r summary-stat-logistic}
+
+lr_tbl %>% 
+  skimr::skim()
+```
+
+## 시각화
+
+```{r visualization-lr}
+
+lr_tbl %>% 
+  ggplot(aes(x = 학습시간, y = 입학여부)) +
+    geom_point() +
+    geom_smooth(method = "glm", 
+      method.args = list(family = "binomial"), 
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+```
+
+
+## 내장 모형 활용
+
+```{r}
+adm_lr <- glm(입학여부 ~ 학습시간, family = "binomial", data = lr_tbl)
+
+adm_lr
+```
+
+
+## 합격 예측 시각화
+
+```{r}
+library(crosstalk)
+
+crosstalk_lr_raw <- tibble( 학습시간 = seq(from = 1, to = 5, 0.1) )
+
+crosstalk_lr_tbl <- crosstalk_lr_raw %>% 
+  mutate(합격확률 = predict(adm_lr, newdata = crosstalk_lr_raw, type = "response" )) %>% 
+  left_join(lr_tbl) %>% 
+  mutate(입학여부 = factor(입학여부, levels = c(0, 1), labels = c("불합격", "합격")) )
+
+crosstalk_lr_g <- crosstalk_lr_tbl %>% 
+    ggplot(aes(x = 학습시간, y = 합격확률) ) +
+      geom_point() +
+      geom_point(aes(x = 학습시간, y = as.numeric(입학여부) - 1, color = 입학여부 ) ) +
+      geom_smooth(method = "glm", method.args = list(family = "binomial"),
+      se = FALSE) +
+      labs(title = "학습시간과 입학확률",
+           x = "학습시간",
+           y = "합격확률 (%)") +
+      theme_light() +
+      scale_y_continuous(labels = scales::percent)
+
+plotly::ggplotly(crosstalk_lr_g )
+
+```
+
+## 직접 구현 
+
+최우추정량(MLE)을 찾는 것은 - 우도(Likelihood)값을 구하는 것과 동일하기 General-purpose optimization 에 함수를 정의해서 모수 초기화하여 함께 넣어 반복적으로 근사시켜 모수를 계산한다.
+
+$$
+NLL(y) = -{\log(p(y))}
+$$
+
+$$
+\min_{\theta} \sum_y {-\log(p(y;\theta))} 
+$$
+
+$$
+\max_{\theta} \prod_y p(y;\theta)
+$$
+
+
+```{r logistic-regression-from-scratch}
+sigmoid_fn <-  function(x){
+  
+  1/(1+exp(-x))
+  
+}
+
+neg_log_likelihood <- function(par, data, y, include_alpha = T) {
+  
+  # 출력변수 정의
+  x <- data[,names(data) != y]
+  y_data <- data[,y]
+
+  # 1. 선형결합
+  if( include_alpha ){
+
+    # 선형결합: beta_1 * x_1 + beta_2 * x_2 + ...
+    linear_combination <- mapply("*", x, par[2:length(par)])
+
+    # 알파(편향) 계수 결합 : alpha + beta_1 * x_1 + beta_2 * x_2 + ...
+    theta <-  rowSums(linear_combination) + par[1]
+  } else {
+    theta <- rowSums(mapply("*", x, par))
+  }
+
+  # 2. 확률 계산
+  p <- sigmoid_fn(theta)
+  # p <- exp(theta) / (1 + exp(theta))
+
+  # 3. 우도값 계산: -log likelihood 
+  value <- - sum(y_data * log(p) + (1-y_data)*log(1-p)) 
+
+  return(value)
+}
+
+library(optimx)
+
+lr_opt <- optimx(
+  par = c(0,0),
+  fn = neg_log_likelihood,
+  data = lr_tbl,
+  y = "입학여부",
+   method = "Nelder-Mead",
+  include_alpha = TRUE,
+  itnmax = 100,
+  control = list(trace = TRUE, all.methods = FALSE)
+)
+
+lr_opt[, 1:5] %>% 
+  as.data.frame() %>% 
+  rownames_to_column("method") %>% 
+  filter(method == "Nelder-Mead") %>% 
+  select(method, p1, p2)
+```
+
+`glm()` 함수로 구현한 것과 값이 동일한지 상호확인한다.
+
+```{r}
+adm_lr$coefficients
+```
+
+## 예측값 생성
+
+
+
+```{r, eval = TRUE}
+predict_fn <- function(x, par){
+
+  if( ncol(x) < length(par) ){
+    theta <- rowSums(mapply("*", x, par[2:length(par)])) +  as.numeric(par[1])
+  } else {
+    theta <- rowSums(mapply("*", x, par))
+  }
+
+  prob <- sigmoid_fn(theta)
+
+  return(prob)
+}
+
+custom_pred <- predict_fn(lr_tbl %>% select(학습시간),  lr_opt[, 1:2])
+
+lr_tbl  %>% 
+  mutate(자체제작_예측 = custom_pred) %>% 
+  mutate(예측 = predict(adm_lr, newdata = lr_tbl %>% select(학습시간), type ="response")) %>% 
+  reactable::reactable()
+
+```
+
+# 신경망 
+
+
+```{r}
+library(nnet)
+library(NeuralNetTools)
+
+lr_nn_tbl <- lr_tbl %>% 
+  rename(adm_yn = 입학여부,
+         learning_hour = 학습시간) %>% 
+  mutate(adm_yn = as.factor(adm_yn))
+
+adm_nn <- nnet(adm_yn ~ learning_hour,
+               size = 2,
+               softmax = FALSE,
+               data = lr_nn_tbl)
+
+plotnet(adm_nn)
+```
+
+
+```{r}
+
+cm <- table(lr_nn_tbl$adm_yn, predict(adm_nn, lr_nn_tbl, type="class"))
+
+cat("\n신경망 모형 오차행렬(Confusion matrix): \n")
+
+print(cm) 
+```
+
+
