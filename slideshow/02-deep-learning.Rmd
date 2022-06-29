@@ -221,6 +221,20 @@ name: hidden-technical-debt
 Sculley, David, et al. "Hidden technical debt in machine learning systems." Advances in neural information processing systems 28 (2015).
 ]
 
+---
+name: deep-learning-end2end
+# 딥러닝 모형 개발 범위
+
+<br>
+<br>
+
+.center[
+![](fig/end2end-deep-learning.png)
+]
+
+.footnote[
+Eli Stevens, Luca Antiga, and Thomas Viehmann (2020), "Deep Learning with PyTorch", Manning.
+]
 
 
 

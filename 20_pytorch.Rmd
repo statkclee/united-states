@@ -1,0 +1,291 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "파이토치"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    include:
+      after_body: assets/footer.html
+      before_body: assets/header.html
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# 설치
+
+```
+conda install pytorch torchvision cpuonly -c pytorch
+```
+
+# 기본 연산
+
+## 행렬
+
+<div class = "row">
+  <div class = "col-md-6">
+**수식**
+
+```
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\end{bmatrix}
+```
+
+$$
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\end{bmatrix}
+$$
+
+  </div>
+  <div class = "col-md-6">
+**코드**
+
+```{python}
+import torch
+
+# torch.ones((2,3), dtype=torch.int8)
+# torch.rand((2,3))
+
+torch.tensor([[1, 2 ,3], [4, 5, 6]])
+```
+
+  </div>
+</div>
+
+
+## gradient
+
+<div class = "row">
+  <div class = "col-md-6">
+**수식**
+
+```
+y = 2 \times x+3
+```
+
+$$
+y = 2 \times x + 3
+$$
+미분 결과 
+
+$$
+\frac{\partial y}{\partial x} = 2
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**코드**
+
+```{python}
+x = torch.tensor([[1., 2., 3.],
+                  [4., 5., 6.]], requires_grad=True)
+
+y = 2 * x + 3
+print(y)
+```
+
+
+  </div>
+</div>
+
+## 형태 변환
+
+<div class = "row">
+  <div class = "col-md-6">
+**수식**
+
+```
+\begin{bmatrix}
+1 \\
+2 \\
+3 \\
+4
+\end{bmatrix}
+
+\to 
+
+\begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+\end{bmatrix}
+
+```
+
+$$
+\begin{bmatrix}
+1 \\
+2 \\
+3 \\
+4
+\end{bmatrix}
+\to 
+\begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+\end{bmatrix}
+$$
+
+  </div>
+  <div class = "col-md-6">
+**코드**
+
+```{python}
+a = torch.tensor([1., 2., 3., 4.])
+
+torch.reshape(a, (2, 2))
+# a.view((2, 2))
+```
+
+# 헬로월드
+
+## 패션 MNIST 데이터셋
+
+<div class = "row">
+  <div class = "col-md-6">
+**패션 이미지**
+
+![](assets/fashion_MNIST_sample.png)
+
+  </div>
+  <div class = "col-md-6">
+**$y$ 라벨**
+
+
+| 라벨 |	라벨 명칭   |
+|:----:|:------------:|
+|  0   |	T-shirt/top |
+|  1   |	Trouser     |
+|  2   |	Pullover    |
+|  3   |	Dress       |
+|  4   |	Coat        |
+|  5   |	Sandal      |
+|  6   |	Shirt       |
+|  7   |	Sneaker     |
+|  8   |	Bag         |
+|  9   |	Ankle boot  |
+
+
+  </div>
+</div>
+
+
+
+
+## 신경망 아키텍처
+
+
+```{python, eval = FALSE}
+import torch
+from torch import nn
+from torchvision import datasets, transforms
+
+transform = transforms.Compose([transforms.ToTensor(),
+                              transforms.Normalize((0.5,), (0.5,)),
+                              ])
+batch_size = 64
+
+## 훈련 데이터 다운로드
+trainset = datasets.FashionMNIST('data/', download=True, train=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+
+## 시험 데이터 다운로드
+testset = datasets.FashionMNIST('data/', download=True, train=False, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True)
+
+## 아키텍처 정의
+class FashionNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.hidden1 = nn.Linear(784, 256)
+        self.hidden2 = nn.Linear(256, 128)
+        self.output = nn.Linear(128, 10)
+        self.log_softmax = nn.LogSoftmax()
+        self.activation = nn.ReLU()
+        self.drop = nn.Dropout(p=0.25)
+    def forward(self, x):
+        x = self.hidden1(x)
+        x = self.activation(x)
+        x = self.drop(x)
+        x = self.hidden2(x)
+        x = self.activation(x)
+        x = self.drop(x)
+        x = self.output(x)
+        output = self.log_softmax(x)
+        return output
+      
+model = FashionNetwork()
+
+criterion = nn.NLLLoss()
+
+print(model)
+
+```
+
+
+## 최적화
+
+
+```{python, eval = FALSE}
+from torch import optim
+
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+epoch = 10
+
+for _ in range(epoch):
+    running_loss = 0
+    for image, label in trainloader:
+        optimizer.zero_grad()
+        image = image.view(image.shape[0],-1)
+        pred = model(image)           # 앞서 정의한 모형을 학습
+        loss = criterion(pred, label) # 오차 계산
+        loss.backward()               # 역전파
+        optimizer.step()              # 스텝
+        running_loss += loss.item()   # 오차값을 총 오차에 더함
+    else:
+        print(f'Training loss: {running_loss/len(trainloader):.4f}')
+
+# Training loss: 0.5576
+# Training loss: 0.4172
+# Training loss: 0.3854
+# Training loss: 0.3652
+# Training loss: 0.3495
+# Training loss: 0.3365
+# Training loss: 0.3280
+# Training loss: 0.3180
+# Training loss: 0.3094
+# Training loss: 0.3015
+```
+
+
+

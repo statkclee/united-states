@@ -78,6 +78,13 @@ deep_learning_list <- list(
     text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
     link = "20_NLP.html",
     footer = "2022-06-27"
+  ),
+  tibble(
+    title = "파이토치",
+    image = "assets/favicon-pytorch.png",
+    text = "파이토치(Pytorch) 딥러닝 모형",
+    link = "20_pytorch.html",
+    footer = "2022-06-29"
   )  
 )
 
