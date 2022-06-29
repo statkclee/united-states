@@ -1,5 +1,36 @@
 
 ---
+class: inverse, middle
+name: data-science-case
+
+# 발표 개요 
+
+----
+
+.pull-left[
+
+
+최근 각광받고 있는 **.warmyellow[딥러닝(Deep Learning)]** 은 
+학문적으로 의미가 있을 뿐만 아니라 기술의 급격한 발전과
+디지털 전환에 중요한 역할을 하고 있기 때문에
+**컴퓨팅 사고력(Computational Thinking)**의 중요한 축인 
+**.warmyellow[자동화(automation)]**을 떼고 생각할 수는 없다.
+
+이에, 자동화와 딥러닝을 이해하고 
+구현하는데 핵심적인 사항을 다뤄본다. 
+
+]
+ 
+.pull-right[   
+.left[
+
+1\. [자동화](#automation)
+2\. [딥러닝 소개](#deep-learning)
+
+]
+] <!--end of right-column-->  
+
+---
 name: automation-paradox
 # 모라벡의 역설(Moravec’s paradox)
 
@@ -61,35 +92,53 @@ clear: both;
 
 
 ---
-name: deep-learning-vs-software
-# 소프트웨어 2.0 vs. 딥러닝 모형
-
-<br>
-<br>
+name: dl-timeline
+# 기계학습 분류
 
 .center[
-![](fig/software-versions.png)
-]
-
-.footnote[
-Domingos, Pedro. The master algorithm: How the quest for the ultimate learning machine will remake our world. Basic Books, 2015.
+<img src="fig/machine-learning-classification.png" alt="기계학습 분류" width="100%" />
 ]
 
 
 ---
-name: hidden-technical-debt
-# 기계학습(딥러닝) 기여분
-
-<br>
-<br>
+name: dl-timeline
+# 신경망 모형 여정
 
 .center[
-![](fig/hidden-technical-debt.png)
+<img src="fig/dl-timeline.png" alt="timeline" width="100%" />
 ]
 
 .footnote[
-Sculley, David, et al. "Hidden technical debt in machine learning systems." Advances in neural information processing systems 28 (2015).
+Liangqu Long, Xiangming Zeng (2022), "Beginning Deep Learning with TensorFlow: Work with Keras, MNIST Data Sets, and Advanced Neural Networks", Apress
 ]
+
+---
+name: dl-applicatin
+# 딥러닝 활용사례
+
+.panelset[
+
+.panel[.panel-name[이미지 데이터]
+.center[
+<img src="fig/dl-image.png" alt="이미지 데이터" width="100%" />
+]
+]
+
+.panel[.panel-name[텍스트 데이터]
+.center[
+<img src="fig/dl-text.png" alt="텍스트 데이터" width="100%" />
+]
+]
+
+.panel[.panel-name[정형 데이터]
+.center[
+<img src="fig/dl-csv.png" alt="정형데이터" width="100%" />
+]
+]
+
+]
+
+
 
 
 ---
@@ -138,6 +187,38 @@ sota_tbl %>%
 
 .footnote[
 [Image Classification on ImageNet](https://paperswithcode.com/sota/image-classification-on-imagenet)
+]
+
+
+---
+name: deep-learning-vs-software
+# 소프트웨어 2.0 vs. 딥러닝 모형
+
+<br>
+<br>
+
+.center[
+![](fig/software-versions.png)
+]
+
+.footnote[
+Domingos, Pedro. The master algorithm: How the quest for the ultimate learning machine will remake our world. Basic Books, 2015.
+]
+
+
+---
+name: hidden-technical-debt
+# 기계학습(딥러닝) 기여분
+
+<br>
+<br>
+
+.center[
+![](fig/hidden-technical-debt.png)
+]
+
+.footnote[
+Sculley, David, et al. "Hidden technical debt in machine learning systems." Advances in neural information processing systems 28 (2015).
 ]
 
 

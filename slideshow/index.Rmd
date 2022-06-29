@@ -41,7 +41,8 @@ options(
 )
 
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE,
-                      comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center',
+                      comment="", digits = 3, tidy = FALSE, prompt = FALSE, 
+                      fig.align = 'center',
                       fig.width = 7.252,
                       fig.height = 4,
                       dpi = 300)
@@ -51,6 +52,8 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE,
 # scale_fill_discrete <- partial(scale_fill_nhs, discrete = TRUE)
 # scale_colour_continuous <- partial(scale_colour_nhs, discrete = FALSE)
 # scale_colour_discrete <- partial(scale_colour_nhs, discrete = TRUE)
+
+
 ```
 
 
@@ -73,15 +76,23 @@ name: data-science-case
 
 .pull-left[
 
-최근 각광받고 있는 **.warmyellow[딥러닝(Deep Learning)]** 을 이해하고 
-구현하는데 핵심적인 사항을 다뤄본다.
+
+최근 각광받고 있는 **.warmyellow[딥러닝(Deep Learning)]** 은 
+학문적으로 의미가 있을 뿐만 아니라 기술의 급격한 발전과
+디지털 전환에 중요한 역할을 하고 있기 때문에
+**컴퓨팅 사고력(Computational Thinking)**의 중요한 축인 
+**.warmyellow[자동화(automation)]**을 떼고 생각할 수는 없다.
+
+이에, 자동화와 딥러닝을 이해하고 
+구현하는데 핵심적인 사항을 다뤄본다. 
 
 ]
  
 .pull-right[   
 .left[
 
-1\. [딥러닝이란](#deep-learning)
+1\. [자동화](#automation)
+2\. [딥러닝 소개](#deep-learning)
 
 ]
 ] <!--end of right-column-->  
@@ -100,4 +111,7 @@ name: data-science-case
 
 ```{r child='goodbye.Rmd'}
 ```
+
+
+
 
