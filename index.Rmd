@@ -73,18 +73,25 @@ deep_learning_list <- list(
     footer = "2022-06-23"
   ),
   tibble(
-    title = "NLP",
-    image = "assets/favicon-NLP.png",
-    text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
-    link = "20_NLP.html",
-    footer = "2022-06-27"
-  ),
-  tibble(
     title = "파이토치",
     image = "assets/favicon-pytorch.png",
     text = "파이토치(Pytorch) 딥러닝 모형",
     link = "20_pytorch.html",
     footer = "2022-06-29"
+  ),
+  tibble(
+    title = "전이학습",
+    image = "assets/favicon-transfer.png",
+    text = "전이학습(transfer learning), 사전학습 모형(Pretrained model)",
+    link = "30_transfer_learning.html",
+    footer = "2022-06-29"
+  ),
+  tibble(
+    title = "NLP",
+    image = "assets/favicon-NLP.png",
+    text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
+    link = "20_NLP.html",
+    footer = "2022-06-27"
   )  
 )
 
