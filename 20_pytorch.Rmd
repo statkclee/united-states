@@ -181,18 +181,13 @@ torch.reshape(a, (2, 2))
 **$y$ 라벨**
 
 
-| 라벨 |	라벨 명칭   |
-|:----:|:------------:|
-|  0   |	T-shirt/top |
-|  1   |	Trouser     |
-|  2   |	Pullover    |
-|  3   |	Dress       |
-|  4   |	Coat        |
-|  5   |	Sandal      |
-|  6   |	Shirt       |
-|  7   |	Sneaker     |
-|  8   |	Bag         |
-|  9   |	Ankle boot  |
+| 라벨 |	라벨 명칭   | 라벨 |	라벨 명칭   |
+|:----:|:------------:|:----:|:------------:|
+|  0   |	T-shirt/top |  5   |	Sandal      |
+|  1   |	Trouser     |  6   |	Shirt       |
+|  2   |	Pullover    |  7   |	Sneaker     |
+|  3   |	Dress       |  8   |	Bag         |
+|  4   |	Coat        |  9   |	Ankle boot  |
 
 
   </div>
@@ -200,14 +195,13 @@ torch.reshape(a, (2, 2))
 
 
 
+## 환경설정과 데이터셋 
 
-## 신경망 아키텍처
-
-
-```{python, eval = FALSE}
+```{python, eval = TRUE}
 import torch
 from torch import nn
 from torchvision import datasets, transforms
+import torchvision.models as models
 
 transform = transforms.Compose([transforms.ToTensor(),
                               transforms.Normalize((0.5,), (0.5,)),
@@ -215,15 +209,22 @@ transform = transforms.Compose([transforms.ToTensor(),
 batch_size = 64
 
 ## 훈련 데이터 다운로드
-trainset = datasets.FashionMNIST('data/', download=True, train=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+trainset = datasets.FashionMNIST('data/', download=False, train=True, transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=False)
 
 ## 시험 데이터 다운로드
-testset = datasets.FashionMNIST('data/', download=True, train=False, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True)
+testset = datasets.FashionMNIST('data/', download=False, train=False, transform=transform)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
+```
 
+
+## 신경망 아키텍처
+
+```{python, eval = TRUE}
 ## 아키텍처 정의
+
 class FashionNetwork(nn.Module):
+  
     def __init__(self):
         super().__init__()
         self.hidden1 = nn.Linear(784, 256)
@@ -232,6 +233,7 @@ class FashionNetwork(nn.Module):
         self.log_softmax = nn.LogSoftmax()
         self.activation = nn.ReLU()
         self.drop = nn.Dropout(p=0.25)
+        
     def forward(self, x):
         x = self.hidden1(x)
         x = self.activation(x)
@@ -241,26 +243,28 @@ class FashionNetwork(nn.Module):
         x = self.drop(x)
         x = self.output(x)
         output = self.log_softmax(x)
+        
         return output
       
 model = FashionNetwork()
-
-criterion = nn.NLLLoss()
 
 print(model)
 
 ```
 
 
-## 최적화
-
+## 훈련
 
 ```{python, eval = FALSE}
-from torch import optim
 
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+# 오차함수와 최적화 관련 패러미터 설정
+model = Classifier()
+criterion =  nn.NLLLoss()
+optimizer = optim.Adam(model.parameters(), lr = 0.005)
 
-epoch = 10
+# 신경망 학습
+epochs = 10
+losses = []
 
 for _ in range(epoch):
     running_loss = 0
@@ -274,7 +278,8 @@ for _ in range(epoch):
         running_loss += loss.item()   # 오차값을 총 오차에 더함
     else:
         print(f'Training loss: {running_loss/len(trainloader):.4f}')
-
+        losses.append(running_loss/len(trainloader))
+        
 # Training loss: 0.5576
 # Training loss: 0.4172
 # Training loss: 0.3854
@@ -287,5 +292,70 @@ for _ in range(epoch):
 # Training loss: 0.3015
 ```
 
+## 모형 저장
 
+```{python, eval = FALSE}
+## 딥러닝 모형 저장   
+torch.save(model.state_dict(), "data/fashion.pth")
+
+# 리스트 학습 손실값 저장
+# import json
+# with open("data/fashion_mnist_losses.json", "w") as fp:
+#    json.dump(losses, fp)
+
+```
+
+
+## 평가
+
+```{python}
+import torch
+from torch import nn
+from torchvision import datasets, transforms
+import json
+   
+## 예측모형 불러오기
+model =  FashionNetwork()
+model.load_state_dict(torch.load('data/fashion.pth'), strict=False)
+model.eval()
+
+# 테스트 데이터에서 첫 이미지 추출
+testimgs, testlabels = iter(testloader).next()
+img = testimgs[0].view(1, 784)
+
+with torch.no_grad():
+    logps = model(img)
+
+ps = torch.exp(logps)
+probabilities = list(ps.numpy()[0])
+prediction = probabilities.index(max(probabilities))
+# print(prediction)
+
+def mnist_label(label):
+    output_mapping = {
+      0: "T-shirt/Top",
+      1: "Trouser",
+      2: "Pullover",
+      3: "Dress",
+      4: "Coat",
+      5: "Sandal",
+      6: "Shirt",
+      7: "Sneaker",
+      8: "Bag",
+      9: "Ankle Boot"
+    }
+    label = (label.item() if type(label) == torch.Tensor else label)
+    return output_mapping[label]
+
+mnist_label(prediction) 
+
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+plt.imshow(testimgs[0][0].numpy().squeeze(), cmap='gray_r');
+plt.show()
+
+```
 
