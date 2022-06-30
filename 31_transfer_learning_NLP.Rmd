@@ -250,7 +250,78 @@ infer_glove <- tidy_glove  %>%
 nearest_neighbors(infer_glove, "king-man+woman")
 ```
 
-# BERT {.tabset}
+# 언어 모델
+
+- [](https://docs.google.com/spreadsheets/d/1AAIebjNsnJj_uKALHbXNfn3_YsT6sHXtCU0q7OIPuc4/)
+
+![The Rise of Cognitive AI, https://towardsdatascience.com/the-rise-of-cognitive-ai-a29d2b724ccc](assets/language_models_log.jpg)
+
+
+```{r}
+library(googlesheets4)
+library(tidyverse)
+library(patchwork)
+
+# googlesheets4::gs4_deauth()
+# googlesheets4::gs4_auth()
+
+lang_raw <- read_sheet("https://docs.google.com/spreadsheets/d/1AAIebjNsnJj_uKALHbXNfn3_YsT6sHXtCU0q7OIPuc4/")
+
+lang_tbl <- lang_raw %>% 
+  janitor::clean_names() %>% 
+  filter(! is.na(system),
+         ! is.na(parameters)) %>% 
+  select(system, domain, year, parameters) %>% 
+  filter(domain == "Language") %>% 
+  group_by(system, year) %>% 
+  summarise(parameters = max(parameters)) %>% 
+  mutate(imp_model = case_when( system == "GPT" ~ TRUE,
+                                system == "Transformer" ~ TRUE,
+                                system == "BERT-Large" ~ TRUE,
+                                system == "Megatron-LM" ~ TRUE,
+                                system == "ELECTRA" ~ TRUE,
+                                system == "GPT-3 175B" ~ TRUE,
+                                system == "LaMDA" ~ TRUE,
+                                TRUE ~ FALSE))
+
+
+
+
+
+lang_whole_gg <- lang_tbl %>% 
+  ggplot(aes(x = year, y = parameters, color = imp_model)) +
+    geom_point() +
+    scale_y_log10(labels = scales::comma) +
+    ggrepel::geom_text_repel(aes(label = system)) +
+    geom_smooth(se = FALSE) +
+    theme_light() +
+    labs(title = "언어모형 복잡성 추세",
+         x = "",
+         y = "패러미터(Parameter) 수",
+         caption = "Parameter, Compute and Data Trends in Machine Learning, https://bit.ly/3NqTZZ3") +
+    scale_color_manual(values = c("gray37", "blue"))  +
+    theme(legend.position = "none")
+
+lang_latest_gg <- lang_tbl %>% 
+  filter(year > 2015) %>% 
+  ggplot(aes(x = year, y = parameters, color = imp_model)) +
+    geom_point() +
+    scale_y_log10(labels = scales::comma) +
+    ggrepel::geom_text_repel(aes(label = system)) +
+    theme_light() +
+    labs(x = "",
+         y = "") +
+     theme(axis.ticks.y = element_blank(),
+           axis.text.y = element_blank(),
+           legend.position = "none") +
+     scale_color_manual(values = c("gray37", "blue")) 
+
+lang_whole_gg
+  
+# lang_whole_gg +
+#   inset_element(lang_latest_gg, 0.15, 0.5, 0.6, 0.95, align_to = 'full') 
+```
+
 
 
 
