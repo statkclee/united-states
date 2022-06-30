@@ -39,38 +39,34 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
 library(tidyverse)
 ```
 
-# 신경망 개념 [^nn-architecture] {.tabset}
+# 신경망 개념 [^1] {.tabset}
 
-[^nn-architecture]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
-
+[^1]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
 
 ## 뇌신경
 
-![](assets/neural_network/neuron_wiki.png){width=100%}
+![](assets/neural_network/neuron_wiki.png){width="100%"}
 
----
+------------------------------------------------------------------------
 
 ![](assets/latex/neuron.png)
 
----
+------------------------------------------------------------------------
 
 $$
 \text{출력} = \frac{1}
        {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} }
 $$
 
-
 ## 로지스틱 회귀 모형
-
 
 ![](assets/latex/logistic-nn.png)
 
----
+------------------------------------------------------------------------
 
 $$
 x \beta = \beta_0 + \beta_1X_i + \cdots + \beta_nX_n \\
-$$
-$$
+$$ $$
 \text{활성화 함수} = {\frac{exp(x\beta)}{1 + exp (x\beta)}} = {\frac{1}{1 + exp (-x\beta)}} 
 $$
 
@@ -80,23 +76,20 @@ $$
        {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} }
 $$
 
-
-
 ## 신경망 모사 {#neural-network-architecture}
-
 
 ![](assets/latex/deep-nn.png)
 
----
+------------------------------------------------------------------------
 
-![](assets/latex/neural-network-math-notation.png){width=100%}
-
+![](assets/latex/neural-network-math-notation.png){width="100%"}
 
 # 신경망 구현 {.tabset}
 
 ## 문제 정의
 
-문제는 사진속에 담긴 고양이와 개 사진을 데이터로 삼아 개(1)와 고양이(0)를 분류하는 분류기를 구현하는 것이다. 데이터는 캐글 [Dogs vs. Cats - Create an algorithm to distinguish dogs from cats](https://www.kaggle.com/c/dogs-vs-cats) 웹사이트에서 구할 수 있다.
+문제는 사진속에 담긴 고양이와 개 사진을 데이터로 삼아 개(1)와 고양이(0)를 분류하는 분류기를 구현하는 것이다.
+데이터는 캐글 [Dogs vs. Cats - Create an algorithm to distinguish dogs from cats](https://www.kaggle.com/c/dogs-vs-cats) 웹사이트에서 구할 수 있다.
 
 ![](assets/cats-dogs.gif)
 
@@ -124,17 +117,16 @@ cats_dogs[6:10] %>%
   image_append(stack = FALSE)
 ```
 
-
-## 의사 알고리즘 
+## 의사 알고리즘
 
 신경망 알고리즘 구현은 사항을 모듈(함수)로 구현하여 기계학습 문제를 해결한다.
 
-1. 신경망 아키텍쳐 정의
-1. 패러미터 초기화
-1. 순방향 전파(forward propagation)를 통해 예측
-1. 손실함수를 사용해서 손실을 계산
-1. 역전파 알고리즘을 사용해서 손실(오차)을 줄임 (경사하강법 등)
-1. 손실(오차)가 범위내에 들어갈 때까지 상기 과정을 반복
+1.  신경망 아키텍쳐 정의
+2.  패러미터 초기화
+3.  순방향 전파(forward propagation)를 통해 예측
+4.  손실함수를 사용해서 손실을 계산
+5.  역전파 알고리즘을 사용해서 손실(오차)을 줄임 (경사하강법 등)
+6.  손실(오차)가 범위내에 들어갈 때까지 상기 과정을 반복
 
 ## 알고리즘 구현 (R)
 
@@ -257,11 +249,9 @@ nn_model <- function(X_train,
 
 ```
 
-
 ## 입력 데이터
 
 입력 데이터가 이미지이기 때문에 이를 기계가 계산할 수 있는 숫자로 변환한다.
-
 
 ![](assets/img2mat.png)
 
@@ -277,8 +267,6 @@ dim(raw_array)
 raw_array[,,1] 
 
 ```
-
-
 
 ```{r, eval = FALSE}
 
@@ -367,7 +355,6 @@ model <- nn_model( trainx,
 # test accuracy: 62.00
 ```
 
-
 ## 학습 평가
 
 ```{r, eval = FALSE}
@@ -390,7 +377,6 @@ legend(1550, 0.9, inset = 0.001, c(’Learning rate = 0.01’), cex = 0.6)
 ## 정확도 향상
 
 Hyper parameter를 달리하여 이미지 분류 정확도를 높임.
-
 
 ```{r, eval = FALSE}
 learning_rates <- c(0.01, 0.002, 0.005)
@@ -443,12 +429,11 @@ legend("topright", inset = 0.001,
 
 ## 딥러닝 앱
 
-- [데이터 사이언스 언어 R - 기계 이미지 인식](https://r2bit.shinyapps.io/shiny_resnet/)
+-   [데이터 사이언스 언어 R - 기계 이미지 인식](https://r2bit.shinyapps.io/shiny_resnet/)
 
 ![](assets/cats-dogs-shiny.jpg)
 
 # 딥러닝 적용분야 {.tabset}
-
 
 ## 이미지 인식 (CNN)
 
@@ -458,7 +443,7 @@ legend("topright", inset = 0.001,
 
 ![](assets/latex/RNN.png)
 
----
+------------------------------------------------------------------------
 
 ![](assets/latex/LSTM.png)
 
@@ -466,15 +451,11 @@ legend("topright", inset = 0.001,
 
 BERT / GPT
 
-
-
-
 # 딥러닝 구성요소 {.tabset}
 
 ## 드롭아웃
 
 ![](assets/latex/dropout.png)
-
 
 ## 오토인코더
 
@@ -483,3 +464,75 @@ BERT / GPT
 ## 어텐션(Attention)
 
 ![](assets/attention.svg)
+
+# 기본 개념
+
+## 손실 함수
+
+-   연속형 (회귀)
+    -   Mean Absolute Error(MAE)
+
+$$
+\sum_{i=1}^{D}|x_i-y_i|
+$$
+
+  - Mean Squared Error(MSE)
+
+$$
+\sum_{i=1}^{D}(x_i-y_i)^2
+$$
+
+  - Huber loss
+
+$$
+L_{\delta}=
+    \left\{\begin{matrix}
+        \frac{1}{2}(y - \hat{y})^{2} & if \left | (y - \hat{y})  \right | < \delta\\
+        \delta ((y - \hat{y}) - \frac1 2 \delta) & otherwise
+    \end{matrix}\right.
+$$
+
+- 범주형(분류)
+
+  - Cross Entropy
+
+$$
+-{(y\log(p) + (1 - y)\log(1 - p))}
+$$
+
+
+$$
+-\sum_{c=1}^My_{o,c}\log(p_{o,c})
+$$
+
+  - Negative Loglikelihood
+    
+$$
+NLL(y) = -{\log(p(y))}
+$$
+
+$$
+\min_{\theta} \sum_y {-\log(p(y;\theta))}
+$$
+
+$$
+\max_{\theta} \prod_y p(y;\theta)
+$$
+
+  - Hinge loss
+
+$$
+max(0, 1 - y \cdot \hat{y})
+$$
+
+  - KL/JS divergence
+    
+$$
+KL(\hat{y} || y) = \sum_{c=1}^{M}\hat{y}_c \log{\frac{\hat{y}_c}{y_c}}
+$$
+
+$$
+JS(\hat{y} || y) = \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y+\hat{y}}{2}))
+$$
+
+

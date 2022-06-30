@@ -15,7 +15,7 @@ output:
     toc_depth: 2
     toc_float: true
     highlight: tango
-    code_folding: hide
+    code_folding: show
     number_section: true
     self_contained: true
 urlcolor: blue
@@ -37,7 +37,14 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
 library(tidyverse)
 ```
 
-# 이미지 {.tabset}
+# AI 분류 서비스 {.tabset}
+
+## 아키텍쳐
+
+![](assets/transfer-learning-product.png)
+
+- https://r2bit.shinyapps.io/shiny_resnet/
+
 
 ## 원본 이미지
 
@@ -76,9 +83,13 @@ preds <- resnet50_pretrained %>%
 preds
 ```
 
-# 전이학습 {.tabset}
 
-## 데이터셋
+
+# 전이학습 내부 {.tabset}
+
+![](assets/transfer-learning-resnet50.png)
+
+## CIFAR-10 데이터셋
 
 ```{r}
 data <- dataset_cifar10()
@@ -119,8 +130,7 @@ cifar_7 %>%
 
 ```
 
-
-## 전이학습 사례
+## AI 이미지 인식
 
 ```{r}
 library(keras)
@@ -160,7 +170,7 @@ cifar_7_names %>%
 
 ```
 
-# 전이학습 - CIFAR10 {.tabset}
+# 자체개발 vs Pretrained 모델  {.tabset}
 
 ## 데이터셋
 
@@ -191,7 +201,7 @@ for (i in 1:1000) {
 testx <- imagenet_preprocess_input(x)
 ```
 
-## CNN 딥러닝 모형
+## 자체제작 - CNN 딥러닝 모형
 
 ```{r}
 
@@ -259,10 +269,9 @@ val_accuracy: 0.22
 
 
 
-## resnet 전이학습 모형
+## Pretrained 모델 - resnet50
 
 ```{r}
-
 # RESNET50 
 pretrained <- application_resnet50(weights = "imagenet",
                                    include_top = FALSE,
@@ -283,7 +292,6 @@ model %>% compile(loss = 'categorical_crossentropy',
                   optimizer = 'rmsprop',
                   metrics = 'accuracy')
 summary(model)
-
 ```
 
 
@@ -296,7 +304,6 @@ model_resnet50 <- model %>% fit(trainx,
                            validation_split = 0.2)
 
 model_resnet50
-
 ```
 
 
@@ -330,7 +337,7 @@ val_accuracy: 0.805
 ```
 
 
-## vgg16 전이학습 모형
+## Pretrained 모델 - vgg16
 
 ```{r}
 # Pretrained model
@@ -397,7 +404,7 @@ Final epoch (plot to see history):
 val_accuracy: 0.69 
 ```
 
-## 결과 비교
+## 비교
 
 ```{r}
 library(tidyverse)
@@ -437,4 +444,7 @@ tibble(cnn = cnn_accuracy,
 
 
 ```
+
+
+
 
