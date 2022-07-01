@@ -323,7 +323,112 @@ lang_whole_gg
 ```
 
 
+# BERT fine-tuning
+
+- [BERT | Fine Tuning | Disaster Tweets - Natural Language Processing with Disaster Tweets](https://www.kaggle.com/code/manojgadde/beginner-bert-fine-tuning-disaster-tweets/)
+
+
+```{python}
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+import numpy as np
+import matplotlib.pyplot as plt
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+import sklearn
+import re
+import string
+import pandas as pd
+import seaborn as sns
+
+train_data = pd.read_csv('data/twitter/train.csv')
+
+train_data.drop(['id','keyword','location'],axis=1,inplace=True)
+
+train_data.head()
+
+X = train_data.drop('target',axis=1)
+y = train_data['target']
+
+```
+
+
+```{python}
+
+from nltk.stem import WordNetLemmatizer
+
+wn = WordNetLemmatizer()
+corpus = []
+
+for i in range(0,len(X)):
+    review=re.sub('[^a-zA-Z]',' ',X['text'][i])
+    review=review.lower()
+    review=review.split()
+    review=[wn.lemmatize(word) for word in review if word not in stopwords.words('english')]
+    review= ' '.join(review)
+    corpus.append(review)
+    
+    
+## train_test_split
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train,y_test=train_test_split(corpus,y,test_size=0.2,random_state=42)  
+    
+```
+
+
+```{python}
+##using tokenizer of bert
+from transformers import DistilBertTokenizerFast
+tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
+
+
+##tokenize function
+def tokenize_text(data):
+    encoded = tokenizer(data,padding=True, truncation=True, return_tensors='np')
+    return encoded.data
+  
+##tokenize train_data
+train_data=tokenize_text(X_train)
+#tokenize test_data
+test_data=tokenize_text(X_test)
+
+from transformers import TFDistilBertForSequenceClassification
+
+model = TFDistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels = 2)
+
+
+```
 
 
 
+```{python}
+##training 
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+import tensorflow as tf
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=5e-5)
+
+model.compile(optimizer = optimizer, 
+              loss      = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics   = ['accuracy'])
+
+
+model.fit(
+    train_data,
+    np.array(y_train), 
+    validation_data=(
+        test_data,
+        np.array(y_test),
+    ),
+    batch_size=32,epochs=10
+)
+
+
+
+```
 

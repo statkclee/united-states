@@ -1,8 +1,7 @@
 
 ---
 class: inverse, middle
-name: data-science-case
-
+name: ai
 # 발표 개요 
 
 ----
@@ -16,7 +15,7 @@ name: data-science-case
 **컴퓨팅 사고력(Computational Thinking)**의 중요한 축인 
 **.warmyellow[자동화(automation)]**을 떼고 생각할 수는 없다.
 
-이에, 자동화와 딥러닝을 이해하고 
+이에, 자동화, 인공지능, 딥러닝을 이해하고 
 구현하는데 핵심적인 사항을 다뤄본다. 
 
 ]
@@ -25,7 +24,10 @@ name: data-science-case
 .left[
 
 1\. [자동화](#automation)
-2\. [딥러닝 소개](#deep-learning)
+
+2\. **[.warmyellow[인공지능]](#ai)**
+
+3\. [딥러닝](#deep-learning)
 
 ]
 ] <!--end of right-column-->  
@@ -95,6 +97,9 @@ clear: both;
 name: dl-timeline
 # 기계학습 분류
 
+<br>
+<br>
+
 .center[
 <img src="fig/machine-learning-classification.png" alt="기계학습 분류" width="100%" />
 ]
@@ -143,7 +148,7 @@ name: dl-applicatin
 
 ---
 name: human-performance
-# 딥러닝 알고리즘 성능
+# 딥러닝 알고리즘 성능 - 이미지
 
 <br>
 <br>
@@ -178,10 +183,11 @@ sota_tbl %>%
     labs(x = "", 
          y = "상위 5개 정확도 (%)",
          title = "ImageNet 이미지 분류") +
-    theme_light() +
-    geom_text(aes(x = 2012, y = 0.95, label = "인간 정확도\n(95%)"), 
-              size = 4.5, color = "blue", fontface = "bold") +
-    ggrepel::geom_text_repel(aes(label = model))
+    theme_election() +
+    geom_text(aes(x = 2012, y = 0.95, label = "인간 정확도 (95%)"), 
+              size = 12, color = "blue", fontface = "bold") +
+    ggrepel::geom_text_repel(aes(label = model), size = 9.5)
+
 
 ```
 
@@ -191,50 +197,52 @@ sota_tbl %>%
 
 
 ---
-name: deep-learning-vs-software
-# 소프트웨어 2.0 vs. 딥러닝 모형
+name: human-performance-nlp
+# 딥러닝 알고리즘 성능 - 텍스트
 
 <br>
 <br>
 
-.center[
-![](fig/software-versions.png)
-]
+```{r}
+library(tidyverse)
+library(httr)
+library(rvest)
+library(readxl)
+
+squad_url <- "https://rajpurkar.github.io/SQuAD-explorer/"
+
+squad_tables <- read_html(squad_url) %>% 
+  html_elements(css = '.col-md-7 > div:nth-child(1) > div:nth-child(1) > table:nth-child(3)') %>%
+  html_table(fill =TRUE)
+
+squad_tbl <-  squad_tables[[1]] %>% 
+  janitor::clean_names()  %>% 
+  # mutate(year = str_extract(rank, "\\d{4}$") %>%  as.integer) %>% 
+  mutate(text = str_remove(rank, "^\\d{1,2}")) %>% 
+  mutate(text = ifelse(str_detect(model, "Human Performance"), "Jun 16, 2016", text)) %>% 
+   mutate(date = parse_date(text, format =  "%b %d, %Y")) 
+
+squad_tbl %>% 
+  filter(! str_detect(model, "Human Performance")) %>% 
+    ggplot(aes(x = date, y = f1 , group = 1)) +
+    geom_point() +
+    geom_line() +
+    scale_y_continuous() +
+    geom_hline(yintercept = 89.452, linetype = 2, color = "darkblue") +
+    labs(x = "", 
+         y = "F1 점수",
+         title = "스탠포드 질의응답 데이터셋 (SQuAD2.0)") +
+    theme_election() +
+    geom_text(aes(x = as.Date("2018-08-16"), y = 89.452, label = "인간 정확도\n89.452"),
+              size = 12, color = "blue", fontface = "bold")
+
+```
 
 .footnote[
-Domingos, Pedro. The master algorithm: How the quest for the ultimate learning machine will remake our world. Basic Books, 2015.
+[SQuAD2.0 - The Stanford Question Answering Dataset](https://rajpurkar.github.io/SQuAD-explorer/)
 ]
 
 
----
-name: hidden-technical-debt
-# 기계학습(딥러닝) 기여분
-
-<br>
-<br>
-
-.center[
-![](fig/hidden-technical-debt.png)
-]
-
-.footnote[
-Sculley, David, et al. "Hidden technical debt in machine learning systems." Advances in neural information processing systems 28 (2015).
-]
-
----
-name: deep-learning-end2end
-# 딥러닝 모형 개발 범위
-
-<br>
-<br>
-
-.center[
-![](fig/end2end-deep-learning.png)
-]
-
-.footnote[
-Eli Stevens, Luca Antiga, and Thomas Viehmann (2020), "Deep Learning with PyTorch", Manning.
-]
 
 
 

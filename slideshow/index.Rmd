@@ -53,6 +53,71 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE,
 # scale_colour_continuous <- partial(scale_colour_nhs, discrete = FALSE)
 # scale_colour_discrete <- partial(scale_colour_nhs, discrete = TRUE)
 
+library(showtext)
+
+showtext::showtext_auto()
+
+# GGPLOT THEME ------------------------------------------------------------
+
+theme_election <- function(..., font = "나눔바른펜") {
+  
+  theme_bw(base_family = font)  %+replace%
+    
+    theme(
+      
+      #grid elements
+      panel.grid.major.x = element_line(color='gray75'),
+      panel.grid.minor.x = element_blank(),
+      # axis.ticks = element_blank(),          #strip axis ticks
+      
+      #since theme_minimal() already strips axis lines, 
+      #we don't need to do that again
+      
+      #text elements
+      plot.title = element_text(             #title
+        family = font,            #set font family
+        size = 30,                #set font size
+        face = 'bold',            #bold typeface
+        hjust = 0,                #left align
+        vjust = 2),               #raise slightly
+      
+      plot.subtitle = element_text(          #subtitle
+        family = font,            #font family
+        hjust = 0,                #left align        
+        size = 17),               #font size
+      
+      plot.caption = element_text(           #caption
+        family = font,            #font family
+        size = 12,                 #font size
+        hjust = 1),               #right align
+      
+      axis.title = element_text(             #axis titles
+        family = font,            #font family
+        size = 20),               #font size
+      
+      axis.text.x = element_text(            #margin for axis text
+        margin=margin(5, b = 10),
+        size = rel(1.5),
+        family = font, face="bold"),
+      
+      axis.text.y = element_text(
+        size = rel(1.5),
+        colour = "gray35", 
+        family = font, face="bold"),
+      
+      strip.text.x = element_text(
+        size = rel(1.5), 
+        colour = "black", family = font, face="bold" ),
+      
+      strip.background = element_rect(fill="gray95"),
+      
+      legend.position = "top",
+      legend.title=element_text(size=12),
+      legend.text=element_text(size=10)
+      
+    )
+}
+
 
 ```
 
@@ -68,8 +133,7 @@ class: title-slide, left, bottom
  
 ---
 class: inverse, middle
-name: data-science-case
-
+name: automation
 # 발표 개요 
 
 ----
@@ -83,7 +147,7 @@ name: data-science-case
 **컴퓨팅 사고력(Computational Thinking)**의 중요한 축인 
 **.warmyellow[자동화(automation)]**을 떼고 생각할 수는 없다.
 
-이에, 자동화와 딥러닝을 이해하고 
+이에, 자동화, 인공지능, 딥러닝을 이해하고 
 구현하는데 핵심적인 사항을 다뤄본다. 
 
 ]
@@ -92,8 +156,10 @@ name: data-science-case
 .left[
 
 1\. [자동화](#automation)
-2\. [딥러닝 소개](#deep-learning)
 
+2\. [인공지능](#ai)
+
+3\. **[.warmyellow[딥러닝]](#deep-learning)**
 ]
 ] <!--end of right-column-->  
 
@@ -102,16 +168,21 @@ name: data-science-case
 ```{r child='01-automation.Rmd'}
 ```
 
-<!--------------------------  2. 딥러닝 ----------------------------------------->
+<!--------------------------  2. 인공지능 ----------------------------------------->
 
-```{r child='02-deep-learning.Rmd'}
+```{r child='02-ai.Rmd'}
 ```
+
+<!--------------------------  3. 딥러닝 ----------------------------------------->
+
+```{r child='03-deep-learning.Rmd'}
+```
+
 
 <!--------------------------  N. 마무리 ----------------------------------------->
 
 ```{r child='goodbye.Rmd'}
 ```
-
 
 
 
