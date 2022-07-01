@@ -233,7 +233,7 @@ squad_tbl %>%
          y = "F1 점수",
          title = "스탠포드 질의응답 데이터셋 (SQuAD2.0)") +
     theme_election() +
-    geom_text(aes(x = as.Date("2018-08-16"), y = 89.452, label = "인간 정확도\n89.452"),
+    geom_text(aes(x = as.Date("2018-08-16"), y = 89.452, label = "인간 정확도 (89.452)"),
               size = 12, color = "blue", fontface = "bold")
 
 ```
