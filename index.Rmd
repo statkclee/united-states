@@ -80,18 +80,18 @@ deep_learning_list <- list(
     footer = "2022-06-29"
   ),
   tibble(
-    title = "전이학습 개요",
-    image = "assets/favicon-transfer.png",
-    text = "전이학습(transfer learning), 사전학습 모형(Pretrained model)",
-    link = "30_transfer_learning.html",
-    footer = "2022-06-29"
+    title = "자연어처리",
+    image = "assets/favicon-transfer-NLP.png",
+    text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
+    link = "30_NLP.html",
+    footer = "2022-06-30"
   ),
   tibble(
     title = "NLP 전이학습",
-    image = "assets/favicon-transfer-NLP.png",
-    text = "자연어 처리 - TF-IDF, 워드임베딩, RNN(LSTM), Transformer/Attention, BERT/GPT, 전이학습, ...",
-    link = "31_transfer_learning_NLP.html",
-    footer = "2022-06-30"
+    image = "assets/favicon-transfer.png",
+    text = "사전학습 모형(Pretrained model), 전이학습(transfer learning)",
+    link = "31_transfer_learning.html",
+    footer = "2022-06-29"
   )  
 )
 
