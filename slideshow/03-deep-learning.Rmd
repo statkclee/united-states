@@ -111,3 +111,16 @@ name: nlp-bert-gpt
 [ratsgo's NLPBOOK](https://ratsgo.github.io/nlpbook/docs/language_model/)
 ]
 
+
+---
+name: nlp-big-picture
+# 인공지능 엔진 개발
+
+<br>
+
+.center[
+<img src = "fig/big-picture.png" width = "100%">
+]
+
+
+

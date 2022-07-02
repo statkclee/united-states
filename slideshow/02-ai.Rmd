@@ -109,6 +109,9 @@ name: dl-timeline
 name: dl-timeline
 # 신경망 모형 여정
 
+<br>
+<br>
+
 .center[
 <img src="fig/dl-timeline.png" alt="timeline" width="100%" />
 ]
@@ -139,6 +142,9 @@ name: dl-applicatin
 .center[
 <img src="fig/dl-csv.png" alt="정형데이터" width="100%" />
 ]
+]
+
+.panel[.panel-name[...]
 ]
 
 ]
