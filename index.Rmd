@@ -9,9 +9,6 @@ output:
   html_document: 
     theme:
       version: 4
-    include:
-      after_body: assets/footer.html
-      before_body: assets/header.html
     toc: yes
     toc_depth: 2
     toc_float: true
@@ -87,11 +84,18 @@ deep_learning_list <- list(
     footer = "2022-06-30"
   ),
   tibble(
-    title = "NLP 전이학습",
+    title = "전이학습 - NLP",
     image = "assets/favicon-transfer.png",
     text = "사전학습 모형(Pretrained model), 전이학습(transfer learning)",
-    link = "31_transfer_learning.html",
+    link = "31_transformers.html",
     footer = "2022-06-29"
+  ),
+  tibble(
+    title = "전이학습 - Vision",
+    image = "assets/favicon-transfer-vision.png",
+    text = "사전학습 모형(Pretrained model), 전이학습(transfer learning), resent",
+    link = "32_transfer-vision.html",
+    footer = "2022-07-03"
   )  
 )
 
