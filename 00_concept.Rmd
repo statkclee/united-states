@@ -8,9 +8,6 @@ output:
   html_document: 
     theme:
       version: 4
-    include:
-      after_body: assets/footer.html
-      before_body: assets/header.html
     toc: yes
     toc_depth: 2
     toc_float: true
@@ -43,7 +40,7 @@ library(tidyverse)
 
 [^1]: [Illustrating (Convolutional) Neural Networks in LaTeX with TikZ](https://davidstutz.de/illustrating-convolutional-neural-networks-in-latex-with-tikz/)
 
-## 뇌신경
+## 신경세포(뉴론)
 
 ![](assets/neural_network/neuron_wiki.png){width="100%"}
 
@@ -54,8 +51,8 @@ library(tidyverse)
 ------------------------------------------------------------------------
 
 $$
-\text{출력} = \frac{1}
-       {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} }
+\frac{1}
+       {1 + e^{- \beta_0 - \beta_1X_i - \cdots - \beta_nX_n)} } = \text{출력}
 $$
 
 ## 로지스틱 회귀 모형
@@ -467,22 +464,168 @@ BERT / GPT
 
 # 기본 개념
 
+## 구성요소 
+
+![](assets/neural-network-anatomy.png)
+
+
+### 활성화 함수(Activation Function)
+
+<div class = "row">
+  <div class = "col-md-6">
+**회귀모형**
+
+$$
+z = \left ( \sum_i w_i \times x_i + b \right )
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**시각화**
+
+```{r}
+library(tidyverse)
+
+## 선형회귀 모형
+reg_func <- function(x) {x}
+  
+ggplot(data.frame(x=c(-4, 4)), mapping=aes(x=x)) + 
+  geom_hline(yintercept=0, color='red') +
+  geom_vline(xintercept=0, color='red') +
+  stat_function(fun=reg_func, colour = "dodgerblue3") +
+  ggtitle('회귀함수') +
+  scale_x_continuous(name='x') +
+  scale_y_continuous(name='f(x)') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme_light()
+```
+
+  </div>
+</div>
+
+
+<div class = "row">
+  <div class = "col-md-6">
+**Sigmoid (이항 회귀모형)**
+
+
+$$
+\sigma(z) = \left (  \frac{1} {1 + e^{-z}} \right )
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**시각화**
+
+```{r}
+plot_activation_function <- function(f, title, range){
+  ggplot(data.frame(x=range), mapping=aes(x=x)) + 
+    geom_hline(yintercept=0, color='red', alpha=1/4) +
+    geom_vline(xintercept=0, color='red', alpha=1/4) +
+    stat_function(fun=f, colour = "dodgerblue3") +
+    ggtitle(title) +
+    scale_x_continuous(name='x') +
+    scale_y_continuous(name='f(x)') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme_light()
+}  
+
+f <- function(x){1 / (1 + exp(-x))}
+plot_activation_function(f, '이항 회귀모형', c(-4,4))
+
+```
+
+  </div>
+</div>
+ 
+
+<div class = "row">
+  <div class = "col-md-6">
+**Tanh(Hyperbolic Tangent)**
+
+$$
+tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} = \frac{1 - e^{-2x}}{1 + e^{-2x}}
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**시각화**
+
+```{r}
+tanh_func <- function(x){tanh(x)}
+plot_activation_function(tanh_func, 'TanH', c(-4,4))
+```
+
+  </div>
+</div>
+
+
+<div class = "row">
+  <div class = "col-md-6">
+**Softmax (다중분류 회귀모형)**
+
+$$
+\sigma(z_i) = \frac{e^{z_{i}}}{\sum_{j=1}^K e^{z_{j}}} \ \ \ for\ i=1,2,\dots,K
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**시각화**
+
+
+  </div>
+</div>
+
+
+
+
+<div class = "row">
+  <div class = "col-md-6">
+**ReLu (Rectified Linear Unit) **
+
+$$
+ReLu(z) = max(0, z)
+$$
+
+
+  </div>
+  <div class = "col-md-6">
+**시각화**
+
+```{r}
+rec_lu_func <- function(x){ ifelse(x < 0 , 0, x )}
+plot_activation_function(rec_lu_func, 'RecLU', c(-4,4))
+```
+
+  </div>
+</div>
+
+
+
+
 ## 손실 함수
 
--   연속형 (회귀)
-    -   Mean Absolute Error(MAE)
+<div class = "row">
+  <div class = "col-md-6">
+**연속형**
+
+-   Mean Absolute Error(MAE)
 
 $$
 \sum_{i=1}^{D}|x_i-y_i|
 $$
 
-  - Mean Squared Error(MSE)
+- Mean Squared Error(MSE)
 
 $$
 \sum_{i=1}^{D}(x_i-y_i)^2
 $$
 
-  - Huber loss
+- Huber loss
 
 $$
 L_{\delta}=
@@ -492,9 +635,17 @@ L_{\delta}=
     \end{matrix}\right.
 $$
 
-- 범주형(분류)
 
-  - Cross Entropy
+  </div>
+  <div class = "col-md-6">
+**범주형**
+
+
+  </div>
+</div>
+
+
+- Cross Entropy
 
 $$
 -{(y\log(p) + (1 - y)\log(1 - p))}
@@ -505,7 +656,7 @@ $$
 -\sum_{c=1}^My_{o,c}\log(p_{o,c})
 $$
 
-  - Negative Loglikelihood
+- Negative Loglikelihood
     
 $$
 NLL(y) = -{\log(p(y))}
@@ -519,13 +670,13 @@ $$
 \max_{\theta} \prod_y p(y;\theta)
 $$
 
-  - Hinge loss
+- Hinge loss
 
 $$
 max(0, 1 - y \cdot \hat{y})
 $$
 
-  - KL/JS divergence
+- KL/JS divergence
     
 $$
 KL(\hat{y} || y) = \sum_{c=1}^{M}\hat{y}_c \log{\frac{\hat{y}_c}{y_c}}
@@ -535,4 +686,35 @@ $$
 JS(\hat{y} || y) = \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y+\hat{y}}{2}))
 $$
 
+## 역전파
+
+- 연쇄법칙(Chain Rule)
+
+$$\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}$$
+예를 들어 $f(x) = (x^3 + 2x)^4$ 를 미분하면...
+
+$$
+f'(x) = 4 \times (x^3 + 2x)^3 \times \frac{d}{dx}(x^3 + 2x)  \\
+      = 4 \times (x^3 + 2x)^3 \times (3x^2 + 2)
+$$
+
+
+- 역전파 알고리즘
+
+$w_{i,j}^k$ 가중치에 대한 손실함수  $E$에 대한 편미분값을 다음과 같이 정의할 수 있다.
+
+$$
+\frac{\partial E}{ \partial w} = \delta_{j}^{k} o_{i}^{k-1}
+$$
+
+각 입력값과 출력값에 대응되는 편미분값을 다음과 같이 정의할 수 있고,
+
+$$
+\frac{ \partial E(X,\theta)}{\partial w_{ij}^k} = 
+\frac{1}{N} \sum_{d=1}^{N}\frac{\partial}{\partial w_{ij}^k} \left ( \frac{1}{2} (\hat{y}_d - y_d)^2 \right ) =
+\frac{1}{N} \sum_{d=1}^{N}\frac{\partial E_d}{\partial w_{ij}^k}
+$$
+따라서, 가중치를 다음과 같이 계산할 수 있다.
+
+$$\Delta w_{ij}^k = - \alpha \frac{ \partial E(X,\theta)}{\partial w_{ij}^k} $$
 
