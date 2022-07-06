@@ -239,11 +239,6 @@ $$
   <div class = "col-md-6">
 **범주형**
 
-
-  </div>
-</div>
-
-
 - Cross Entropy
 
 $$
@@ -284,6 +279,11 @@ $$
 $$
 JS(\hat{y} || y) = \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y+\hat{y}}{2}))
 $$
+
+  </div>
+</div>
+
+
 
 ### 역전파
 
