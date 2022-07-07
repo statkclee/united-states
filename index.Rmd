@@ -103,6 +103,13 @@ deep_learning_list <- list(
     text = "GPU, CPU, SSD, ...",
     link = "40_hardware.html",
     footer = "2022-07-03"
+  ),
+  tibble(
+    title = "딥러닝 개발 환경",
+    image = "assets/favicon-stack.png",
+    text = "딥러닝 개발환경과 소프트웨어 스택",
+    link = "50_software_stack.html",
+    footer = "2022-07-07"
   )  
 )
 
