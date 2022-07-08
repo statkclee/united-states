@@ -8,9 +8,6 @@ output:
   html_document: 
     theme:
       version: 4
-    include:
-      after_body: assets/footer.html
-      before_body: assets/header.html
     toc: yes
     toc_depth: 2
     toc_float: true
@@ -246,7 +243,7 @@ class FashionNetwork(nn.Module):
         
         return output
       
-model = FashionNetwork()
+model = FashionNetwork().to('cuda')
 
 print(model)
 
@@ -255,10 +252,10 @@ print(model)
 
 ## 훈련
 
-```{python, eval = FALSE}
+```{python train-model, eval = FALSE}
+from torch import optim
 
 # 오차함수와 최적화 관련 패러미터 설정
-model = Classifier()
 criterion =  nn.NLLLoss()
 optimizer = optim.Adam(model.parameters(), lr = 0.005)
 
@@ -266,13 +263,22 @@ optimizer = optim.Adam(model.parameters(), lr = 0.005)
 epochs = 10
 losses = []
 
-for _ in range(epoch):
+torch.cuda.is_available()
+torch.cuda.current_device()
+torch.cuda.get_device_name(0)
+torch.cuda.device(0)
+
+device = torch.device(str("cuda:0") if torch.cuda.is_available() else "cpu")
+
+model = model.to('cuda:0')
+
+for _ in range(epochs):
     running_loss = 0
     for image, label in trainloader:
         optimizer.zero_grad()
-        image = image.view(image.shape[0],-1)
+        image = image.view(image.shape[0],-1).to('cuda')
         pred = model(image)           # 앞서 정의한 모형을 학습
-        loss = criterion(pred, label) # 오차 계산
+        loss = criterion(pred, label.to('cuda')) # 오차 계산
         loss.backward()               # 역전파
         optimizer.step()              # 스텝
         running_loss += loss.item()   # 오차값을 총 오차에 더함
@@ -290,11 +296,13 @@ for _ in range(epoch):
 # Training loss: 0.3180
 # Training loss: 0.3094
 # Training loss: 0.3015
+
+
 ```
 
 ## 모형 저장
 
-```{python, eval = FALSE}
+```{python save-model, eval = FALSE}
 ## 딥러닝 모형 저장   
 torch.save(model.state_dict(), "data/fashion.pth")
 
@@ -308,7 +316,7 @@ torch.save(model.state_dict(), "data/fashion.pth")
 
 ## 평가
 
-```{python}
+```{python evaluate-prediction}
 import torch
 from torch import nn
 from torchvision import datasets, transforms
@@ -351,7 +359,10 @@ mnist_label(prediction)
 
 ```
 
-```{python}
+```{python draw-plot}
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 import matplotlib.pyplot as plt
 
 plt.imshow(testimgs[0][0].numpy().squeeze(), cmap='gray_r');
