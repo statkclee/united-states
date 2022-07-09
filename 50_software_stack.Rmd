@@ -184,7 +184,7 @@ conda install pytorch torchvision cudatoolkit=11.2 -c pytorch
 - [맥/리눅스](https://www.tensorflow.org/install/source#tested_build_configurations)
 
 
-# 헬로우 월드
+# 헬로우 월드 {.tabset}
 
 ## 텐서플로우
 
@@ -224,4 +224,280 @@ if device.type == 'cuda':
 ```
 
 
+# 성능 비교
+
+GPU를 사용해서 딥러닝 모형을 만들면 CPU 대비 얼마나 효과가 있을까? 이 문제에 답을 구하기 위해 MNIST 데이터셋을 Keras로 작성된 코드를 다음 하드웨어를 갖춘 컴퓨터로 확인해보자.
+
+- H/W
+    - CPU: Intel Core i7 7700
+    - Memory: DDR4 8 GB
+    - GPU: NVIDIA GeForece GTX 1050
+- S/W
+    - Windows 10
+    - CUDA: 11.2
+    - cuDNN: 8.4.0
+    - Python: 3.8.8
+    
+
+```{python, eval = FALSE}
+import tensorflow as tf
+import numpy as np                                
+import matplotlib.pyplot as plt
+import keras as k
+from keras.datasets import mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Conv2D, MaxPooling2D, BatchNormalization
+from keras.optimizers import SGD, Adam
+from keras.models import load_model
+from keras import backend as K
+
+import tensorflow as tf
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.compat.v1.Session(config = config)
+
+#data preprocessing
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+img_rows, img_cols = 28,28
+x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
+input_shape = (img_rows, img_cols, 1)
+x_test=x_test.astype('float32')
+x_train=x_train.astype('float32')
+mean=np.mean(x_train)
+std=np.std(x_train)
+x_test = (x_test-mean)/std
+x_train = (x_train-mean)/std
+
+#labels
+num_classes=10
+y_train = k.utils.to_categorical(y_train, num_classes)
+y_test = k.utils.to_categorical(y_test, num_classes)
+```
+
+
+## GPU 훈련
+
+```{python, eval = FALSE}
+
+#build model
+
+num_filter=32
+num_dense=512
+drop_dense=0.7
+ac='relu'
+learningrate=0.001
+
+model = Sequential()
+
+model.add(Conv2D(num_filter, (3, 3), activation=ac, input_shape=(28, 28, 1),padding='same'))
+model.add(BatchNormalization(axis=-1))
+model.add(Conv2D(num_filter, (3, 3), activation=ac,padding='same'))
+model.add(BatchNormalization(axis=-1))
+model.add(MaxPooling2D(pool_size=(2, 2)))   # reduces to 14x14x32
+
+model.add(Conv2D(2*num_filter, (3, 3), activation=ac,padding='same'))
+model.add(BatchNormalization(axis=-1))
+model.add(Conv2D(2*num_filter, (3, 3), activation=ac,padding='same'))
+model.add(BatchNormalization(axis=-1))
+model.add(MaxPooling2D(pool_size=(2, 2)))   # reduces to 7x7x64 = 3136 neurons
+
+model.add(Flatten())                        
+model.add(Dense(num_dense, activation=ac))
+model.add(BatchNormalization())
+model.add(Dropout(drop_dense))
+model.add(Dense(10, activation='softmax'))
+
+adm=Adam(learning_rate=learningrate, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+model.compile(loss='categorical_crossentropy', metrics=['accuracy'],optimizer=adm)
+
+# Allocator (GPU_0_bfc) ran out of memory trying to allocate 오류
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# if gpus:
+#     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+#     try:
+#         tf.config.experimental.set_virtual_device_configuration(gpus[0],
+#        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+#         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+#         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+#     except RuntimeError as e:
+#         # Virtual devices must be set before GPUs have been initialized
+#         print(e)
+
+# with GPU (the default in my setup)
+for i in range(7):
+    k=8*2**i
+    print("batch size "+str(k))
+    model.fit(x_train, y_train, batch_size=k, epochs=1, validation_data=(x_test, y_test))
+
+```
+
+
+## CPU 훈련 
+
+
+```{python, eval = FALSE}
+# with CPU only: (tensorflow tries to use all cores available)
+
+with tf.device("/cpu:0"):
+    model = Sequential()
+
+    model.add(Conv2D(num_filter, (3, 3), activation=ac, input_shape=(28, 28, 1),padding='same'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(Conv2D(num_filter, (3, 3), activation=ac,padding='same'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(MaxPooling2D(pool_size=(2, 2)))   # reduces to 14x14x32
+
+    model.add(Conv2D(2*num_filter, (3, 3), activation=ac,padding='same'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(Conv2D(2*num_filter, (3, 3), activation=ac,padding='same'))
+    model.add(BatchNormalization(axis=-1))
+    model.add(MaxPooling2D(pool_size=(2, 2)))   # reduces to 7x7x64 = 3136 neurons
+
+    model.add(Flatten())                        
+    model.add(Dense(num_dense, activation=ac))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_dense))
+    model.add(Dense(10, activation='softmax'))
+
+    adm=Adam(learning_rate=learningrate, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+    model.compile(loss='categorical_crossentropy', metrics=['accuracy'],optimizer=adm)
+    
+    
+with tf.device("/cpu:0"):
+    for i in range(1):
+        k=8*2**i
+        print("batch size "+str(k))
+        model.fit(x_train, y_train, batch_size=k, epochs=1, validation_data=(x_test, y_test))
+
+
+```
+
+
+```
+...
+batch size 512
+
+  1/118 [..............................] - ETA: 2:16 - loss: 0.0022 - accuracy: 1.0000
+  2/118 [..............................] - ETA: 2:24 - loss: 0.0080 - accuracy: 0.9980
+  3/118 [..............................] - ETA: 2:15 - loss: 0.0118 - accuracy: 0.9967
+  4/118 [>.............................] - ETA: 2:15 - loss: 0.0094 - accuracy: 0.9976
+  5/118 [>.............................] - ETA: 2:13 - loss: 0.0112 - accuracy: 0.9969
+  6/118 [>.............................] - ETA: 2:12 - loss: 0.0105 - accuracy: 0.9967
+  7/118 [>.............................] - ETA: 2:11 - loss: 0.0129 - accuracy: 0.9955
+  8/118 [=>............................] - ETA: 2:09 - loss: 0.0122 - accuracy: 0.9958
+  9/118 [=>............................] - ETA: 2:08 - loss: 0.0114 - accuracy: 0.9961
+ 10/118 [=>............................] - ETA: 2:06 - loss: 0.0116 - accuracy: 0.9961
+ 11/118 [=>............................] - ETA: 2:05 - loss: 0.0124 - accuracy: 0.9959
+ 12/118 [==>...........................] - ETA: 2:03 - loss: 0.0117 - accuracy: 0.9963
+ 13/118 [==>...........................] - ETA: 2:02 - loss: 0.0122 - accuracy: 0.9959
+ 14/118 [==>...........................] - ETA: 2:01 - loss: 0.0116 - accuracy: 0.9962
+ 15/118 [==>...........................] - ETA: 2:00 - loss: 0.0111 - accuracy: 0.9964
+ 16/118 [===>..........................] - ETA: 2:01 - loss: 0.0108 - accuracy: 0.9965
+ 17/118 [===>..........................] - ETA: 2:00 - loss: 0.0106 - accuracy: 0.9966
+ 18/118 [===>..........................] - ETA: 1:59 - loss: 0.0108 - accuracy: 0.9965
+ 19/118 [===>..........................] - ETA: 1:58 - loss: 0.0105 - accuracy: 0.9966
+ 20/118 [====>.........................] - ETA: 1:57 - loss: 0.0103 - accuracy: 0.9966
+ 21/118 [====>.........................] - ETA: 1:55 - loss: 0.0099 - accuracy: 0.9967
+ 22/118 [====>.........................] - ETA: 1:54 - loss: 0.0097 - accuracy: 0.9968
+ 23/118 [====>.........................] - ETA: 1:53 - loss: 0.0096 - accuracy: 0.9969
+ 24/118 [=====>........................] - ETA: 1:52 - loss: 0.0097 - accuracy: 0.9967
+ 25/118 [=====>........................] - ETA: 1:51 - loss: 0.0099 - accuracy: 0.9966
+ 26/118 [=====>........................] - ETA: 1:51 - loss: 0.0109 - accuracy: 0.9966
+ 27/118 [=====>........................] - ETA: 1:49 - loss: 0.0108 - accuracy: 0.9966
+ 28/118 [======>.......................] - ETA: 1:48 - loss: 0.0104 - accuracy: 0.9967
+ 29/118 [======>.......................] - ETA: 1:47 - loss: 0.0107 - accuracy: 0.9966
+ 30/118 [======>.......................] - ETA: 1:46 - loss: 0.0105 - accuracy: 0.9966
+ 31/118 [======>.......................] - ETA: 1:45 - loss: 0.0106 - accuracy: 0.9966
+ 32/118 [=======>......................] - ETA: 1:43 - loss: 0.0107 - accuracy: 0.9966
+ 33/118 [=======>......................] - ETA: 1:42 - loss: 0.0108 - accuracy: 0.9966
+ 34/118 [=======>......................] - ETA: 1:41 - loss: 0.0106 - accuracy: 0.9967
+ 35/118 [=======>......................] - ETA: 1:40 - loss: 0.0110 - accuracy: 0.9964
+ 36/118 [========>.....................] - ETA: 1:39 - loss: 0.0110 - accuracy: 0.9964
+ 37/118 [========>.....................] - ETA: 1:37 - loss: 0.0108 - accuracy: 0.9965
+ 38/118 [========>.....................] - ETA: 1:36 - loss: 0.0105 - accuracy: 0.9966
+ 39/118 [========>.....................] - ETA: 1:35 - loss: 0.0104 - accuracy: 0.9967
+ 40/118 [=========>....................] - ETA: 1:34 - loss: 0.0105 - accuracy: 0.9967
+ 41/118 [=========>....................] - ETA: 1:32 - loss: 0.0103 - accuracy: 0.9968
+ 42/118 [=========>....................] - ETA: 1:31 - loss: 0.0104 - accuracy: 0.9968
+ 43/118 [=========>....................] - ETA: 1:30 - loss: 0.0102 - accuracy: 0.9968
+ 44/118 [==========>...................] - ETA: 1:29 - loss: 0.0102 - accuracy: 0.9968
+ 45/118 [==========>...................] - ETA: 1:28 - loss: 0.0101 - accuracy: 0.9969
+ 46/118 [==========>...................] - ETA: 1:27 - loss: 0.0099 - accuracy: 0.9969
+ 47/118 [==========>...................] - ETA: 1:26 - loss: 0.0099 - accuracy: 0.9969
+ 48/118 [===========>..................] - ETA: 1:24 - loss: 0.0101 - accuracy: 0.9969
+ 49/118 [===========>..................] - ETA: 1:23 - loss: 0.0099 - accuracy: 0.9969
+ 50/118 [===========>..................] - ETA: 1:22 - loss: 0.0101 - accuracy: 0.9967
+ 51/118 [===========>..................] - ETA: 1:21 - loss: 0.0102 - accuracy: 0.9966
+ 52/118 [============>.................] - ETA: 1:19 - loss: 0.0101 - accuracy: 0.9967
+ 53/118 [============>.................] - ETA: 1:18 - loss: 0.0101 - accuracy: 0.9967
+ 54/118 [============>.................] - ETA: 1:17 - loss: 0.0101 - accuracy: 0.9967
+ 55/118 [============>.................] - ETA: 1:16 - loss: 0.0102 - accuracy: 0.9967
+ 56/118 [=============>................] - ETA: 1:15 - loss: 0.0101 - accuracy: 0.9967
+ 57/118 [=============>................] - ETA: 1:13 - loss: 0.0100 - accuracy: 0.9967
+ 58/118 [=============>................] - ETA: 1:12 - loss: 0.0100 - accuracy: 0.9968
+ 59/118 [==============>...............] - ETA: 1:11 - loss: 0.0099 - accuracy: 0.9968
+ 60/118 [==============>...............] - ETA: 1:10 - loss: 0.0099 - accuracy: 0.9968
+ 61/118 [==============>...............] - ETA: 1:08 - loss: 0.0100 - accuracy: 0.9967
+ 62/118 [==============>...............] - ETA: 1:07 - loss: 0.0099 - accuracy: 0.9968
+ 63/118 [===============>..............] - ETA: 1:06 - loss: 0.0099 - accuracy: 0.9967
+ 64/118 [===============>..............] - ETA: 1:05 - loss: 0.0101 - accuracy: 0.9967
+ 65/118 [===============>..............] - ETA: 1:04 - loss: 0.0100 - accuracy: 0.9968
+ 66/118 [===============>..............] - ETA: 1:02 - loss: 0.0099 - accuracy: 0.9967
+ 67/118 [================>.............] - ETA: 1:01 - loss: 0.0098 - accuracy: 0.9968
+ 68/118 [================>.............] - ETA: 1:00 - loss: 0.0099 - accuracy: 0.9968
+ 69/118 [================>.............] - ETA: 59s - loss: 0.0098 - accuracy: 0.9968 
+ 70/118 [================>.............] - ETA: 58s - loss: 0.0097 - accuracy: 0.9968
+ 71/118 [=================>............] - ETA: 57s - loss: 0.0096 - accuracy: 0.9968
+ 72/118 [=================>............] - ETA: 55s - loss: 0.0095 - accuracy: 0.9969
+ 73/118 [=================>............] - ETA: 54s - loss: 0.0095 - accuracy: 0.9969
+ 74/118 [=================>............] - ETA: 53s - loss: 0.0095 - accuracy: 0.9969
+ 75/118 [==================>...........] - ETA: 52s - loss: 0.0095 - accuracy: 0.9968
+ 76/118 [==================>...........] - ETA: 50s - loss: 0.0096 - accuracy: 0.9969
+ 77/118 [==================>...........] - ETA: 49s - loss: 0.0096 - accuracy: 0.9969
+ 78/118 [==================>...........] - ETA: 48s - loss: 0.0095 - accuracy: 0.9969
+ 79/118 [===================>..........] - ETA: 47s - loss: 0.0094 - accuracy: 0.9969
+ 80/118 [===================>..........] - ETA: 46s - loss: 0.0094 - accuracy: 0.9969
+ 81/118 [===================>..........] - ETA: 45s - loss: 0.0093 - accuracy: 0.9969
+ 82/118 [===================>..........] - ETA: 43s - loss: 0.0093 - accuracy: 0.9970
+ 83/118 [====================>.........] - ETA: 42s - loss: 0.0093 - accuracy: 0.9969
+ 84/118 [====================>.........] - ETA: 41s - loss: 0.0093 - accuracy: 0.9970
+ 85/118 [====================>.........] - ETA: 40s - loss: 0.0093 - accuracy: 0.9969
+ 86/118 [====================>.........] - ETA: 38s - loss: 0.0093 - accuracy: 0.9969
+ 87/118 [=====================>........] - ETA: 37s - loss: 0.0092 - accuracy: 0.9970
+ 88/118 [=====================>........] - ETA: 36s - loss: 0.0092 - accuracy: 0.9970
+ 89/118 [=====================>........] - ETA: 35s - loss: 0.0091 - accuracy: 0.9970
+ 90/118 [=====================>........] - ETA: 34s - loss: 0.0093 - accuracy: 0.9970
+ 91/118 [======================>.......] - ETA: 32s - loss: 0.0095 - accuracy: 0.9969
+ 92/118 [======================>.......] - ETA: 31s - loss: 0.0094 - accuracy: 0.9969
+ 93/118 [======================>.......] - ETA: 30s - loss: 0.0094 - accuracy: 0.9970
+ 94/118 [======================>.......] - ETA: 29s - loss: 0.0093 - accuracy: 0.9970
+ 95/118 [=======================>......] - ETA: 28s - loss: 0.0093 - accuracy: 0.9970
+ 96/118 [=======================>......] - ETA: 26s - loss: 0.0092 - accuracy: 0.9970
+ 97/118 [=======================>......] - ETA: 25s - loss: 0.0092 - accuracy: 0.9970
+ 98/118 [=======================>......] - ETA: 24s - loss: 0.0092 - accuracy: 0.9970
+ 99/118 [========================>.....] - ETA: 23s - loss: 0.0091 - accuracy: 0.9970
+100/118 [========================>.....] - ETA: 21s - loss: 0.0091 - accuracy: 0.9971
+101/118 [========================>.....] - ETA: 20s - loss: 0.0090 - accuracy: 0.9971
+102/118 [========================>.....] - ETA: 19s - loss: 0.0091 - accuracy: 0.9971
+103/118 [=========================>....] - ETA: 18s - loss: 0.0091 - accuracy: 0.9971
+104/118 [=========================>....] - ETA: 17s - loss: 0.0092 - accuracy: 0.9970
+105/118 [=========================>....] - ETA: 15s - loss: 0.0091 - accuracy: 0.9971
+106/118 [=========================>....] - ETA: 14s - loss: 0.0092 - accuracy: 0.9971
+107/118 [==========================>...] - ETA: 13s - loss: 0.0091 - accuracy: 0.9971
+108/118 [==========================>...] - ETA: 12s - loss: 0.0091 - accuracy: 0.9971
+109/118 [==========================>...] - ETA: 10s - loss: 0.0090 - accuracy: 0.9971
+110/118 [==========================>...] - ETA: 9s - loss: 0.0091 - accuracy: 0.9971 
+111/118 [===========================>..] - ETA: 8s - loss: 0.0090 - accuracy: 0.9971
+112/118 [===========================>..] - ETA: 7s - loss: 0.0091 - accuracy: 0.9971
+113/118 [===========================>..] - ETA: 6s - loss: 0.0091 - accuracy: 0.9971
+114/118 [===========================>..] - ETA: 4s - loss: 0.0090 - accuracy: 0.9971
+115/118 [============================>.] - ETA: 3s - loss: 0.0090 - accuracy: 0.9971
+116/118 [============================>.] - ETA: 2s - loss: 0.0090 - accuracy: 0.9971
+117/118 [============================>.] - ETA: 1s - loss: 0.0090 - accuracy: 0.9971
+118/118 [==============================] - ETA: 0s - loss: 0.0091 - accuracy: 0.9971
+118/118 [==============================] - 147s 1s/step - loss: 0.0091 - accuracy: 0.9971 - val_loss: 0.0149 - val_accuracy: 0.9944
+<keras.callbacks.History object at 0x000001535024DD30>
+```
 

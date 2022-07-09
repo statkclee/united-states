@@ -2091,8 +2091,9 @@ Installing cuDNN</a></p>
 </ul>
 </div>
 </div>
-<div id="헬로우-월드" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> 헬로우 월드</h1>
+<div id="헬로우-월드" class="section level1 tabset" number="3">
+<h1 class="tabset"><span class="header-section-number">3</span> 헬로우
+월드</h1>
 <div id="텐서플로우" class="section level2" number="3.1">
 <h2><span class="header-section-number">3.1</span> 텐서플로우</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
@@ -2100,7 +2101,7 @@ Installing cuDNN</a></p>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tf.config.list_physical_devices(<span class="st">&#39;GPU&#39;</span>))</span></code></pre></div>
 <pre><code>[PhysicalDevice(name=&#39;/physical_device:GPU:0&#39;, device_type=&#39;GPU&#39;)]</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tf.test.is_built_with_cuda)</span></code></pre></div>
-<pre><code>&lt;function is_built_with_cuda at 0x000001C457D28310&gt;</code></pre>
+<pre><code>&lt;function is_built_with_cuda at 0x0000028423C99280&gt;</code></pre>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tf.test.gpu_device_name())</span></code></pre></div>
 <pre><code>/device:GPU:0</code></pre>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tf.config.get_visible_devices())</span></code></pre></div>
@@ -2124,6 +2125,271 @@ Installing cuDNN</a></p>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Memory Usage:</span></span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Allocated: 0.0 GB</span></span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Cached:    0.0 GB</span></span></code></pre></div>
+</div>
+</div>
+<div id="성능-비교" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> 성능 비교</h1>
+<p>GPU를 사용해서 딥러닝 모형을 만들면 CPU 대비 얼마나 효과가 있을까? 이
+문제에 답을 구하기 위해 MNIST 데이터셋을 Keras로 작성된 코드를 다음
+하드웨어를 갖춘 컴퓨터로 확인해보자.</p>
+<ul>
+<li>H/W
+<ul>
+<li>CPU: Intel Core i7 7700</li>
+<li>Memory: DDR4 8 GB</li>
+<li>GPU: NVIDIA GeForece GTX 1050</li>
+</ul></li>
+<li>S/W
+<ul>
+<li>Windows 10</li>
+<li>CUDA: 11.2</li>
+<li>cuDNN: 8.4.0</li>
+<li>Python: 3.8.8</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np                                </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keras <span class="im">as</span> k</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.models <span class="im">import</span> Sequential</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.layers <span class="im">import</span> Dense, Dropout, Flatten</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.layers <span class="im">import</span> Conv2D, MaxPooling2D, BatchNormalization</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.optimizers <span class="im">import</span> SGD, Adam</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.models <span class="im">import</span> load_model</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras <span class="im">import</span> backend <span class="im">as</span> K</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> tf.compat.v1.ConfigProto()</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>config.gpu_options.allow_growth <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>session <span class="op">=</span> tf.compat.v1.Session(config <span class="op">=</span> config)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#data preprocessing</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>(x_train, y_train), (x_test, y_test) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>img_rows, img_cols <span class="op">=</span> <span class="dv">28</span>,<span class="dv">28</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> x_train.reshape(x_train.shape[<span class="dv">0</span>], img_rows, img_cols, <span class="dv">1</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> x_test.reshape(x_test.shape[<span class="dv">0</span>], img_rows, img_cols, <span class="dv">1</span>)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>input_shape <span class="op">=</span> (img_rows, img_cols, <span class="dv">1</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>x_test<span class="op">=</span>x_test.astype(<span class="st">&#39;float32&#39;</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>x_train<span class="op">=</span>x_train.astype(<span class="st">&#39;float32&#39;</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>mean<span class="op">=</span>np.mean(x_train)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>std<span class="op">=</span>np.std(x_train)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> (x_test<span class="op">-</span>mean)<span class="op">/</span>std</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> (x_train<span class="op">-</span>mean)<span class="op">/</span>std</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="co">#labels</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>num_classes<span class="op">=</span><span class="dv">10</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> k.utils.to_categorical(y_train, num_classes)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> k.utils.to_categorical(y_test, num_classes)</span></code></pre></div>
+<div id="gpu-훈련" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> GPU 훈련</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#build model</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>num_filter<span class="op">=</span><span class="dv">32</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>num_dense<span class="op">=</span><span class="dv">512</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>drop_dense<span class="op">=</span><span class="fl">0.7</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ac<span class="op">=</span><span class="st">&#39;relu&#39;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>learningrate<span class="op">=</span><span class="fl">0.001</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Sequential()</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>model.add(Conv2D(num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac, input_shape<span class="op">=</span>(<span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span>),padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>model.add(Conv2D(num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>model.add(MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)))   <span class="co"># reduces to 14x14x32</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>model.add(Conv2D(<span class="dv">2</span><span class="op">*</span>num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>model.add(Conv2D(<span class="dv">2</span><span class="op">*</span>num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>model.add(MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)))   <span class="co"># reduces to 7x7x64 = 3136 neurons</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>model.add(Flatten())                        </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>model.add(Dense(num_dense, activation<span class="op">=</span>ac))</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>model.add(BatchNormalization())</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>model.add(Dropout(drop_dense))</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>model.add(Dense(<span class="dv">10</span>, activation<span class="op">=</span><span class="st">&#39;softmax&#39;</span>))</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>adm<span class="op">=</span>Adam(learning_rate<span class="op">=</span>learningrate, beta_1<span class="op">=</span><span class="fl">0.9</span>, beta_2<span class="op">=</span><span class="fl">0.999</span>, epsilon<span class="op">=</span><span class="fl">1e-08</span>)</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>model.<span class="bu">compile</span>(loss<span class="op">=</span><span class="st">&#39;categorical_crossentropy&#39;</span>, metrics<span class="op">=</span>[<span class="st">&#39;accuracy&#39;</span>],optimizer<span class="op">=</span>adm)</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Allocator (GPU_0_bfc) ran out of memory trying to allocate 오류</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co"># gpus = tf.config.experimental.list_physical_devices(&#39;GPU&#39;)</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="co"># if gpus:</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a><span class="co">#     try:</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="co">#         tf.config.experimental.set_virtual_device_configuration(gpus[0],</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="co">#        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="co">#         logical_gpus = tf.config.experimental.list_logical_devices(&#39;GPU&#39;)</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co">#         print(len(gpus), &quot;Physical GPUs,&quot;, len(logical_gpus), &quot;Logical GPUs&quot;)</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="co">#     except RuntimeError as e:</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="co">#         # Virtual devices must be set before GPUs have been initialized</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="co">#         print(e)</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co"># with GPU (the default in my setup)</span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">7</span>):</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>    k<span class="op">=</span><span class="dv">8</span><span class="op">*</span><span class="dv">2</span><span class="op">**</span>i</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;batch size &quot;</span><span class="op">+</span><span class="bu">str</span>(k))</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    model.fit(x_train, y_train, batch_size<span class="op">=</span>k, epochs<span class="op">=</span><span class="dv">1</span>, validation_data<span class="op">=</span>(x_test, y_test))</span></code></pre></div>
+</div>
+<div id="cpu-훈련" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> CPU 훈련</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with CPU only: (tensorflow tries to use all cores available)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> tf.device(<span class="st">&quot;/cpu:0&quot;</span>):</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Sequential()</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    model.add(Conv2D(num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac, input_shape<span class="op">=</span>(<span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span>),padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    model.add(Conv2D(num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    model.add(MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)))   <span class="co"># reduces to 14x14x32</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    model.add(Conv2D(<span class="dv">2</span><span class="op">*</span>num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    model.add(Conv2D(<span class="dv">2</span><span class="op">*</span>num_filter, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span>ac,padding<span class="op">=</span><span class="st">&#39;same&#39;</span>))</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    model.add(BatchNormalization(axis<span class="op">=-</span><span class="dv">1</span>))</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    model.add(MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)))   <span class="co"># reduces to 7x7x64 = 3136 neurons</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    model.add(Flatten())                        </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    model.add(Dense(num_dense, activation<span class="op">=</span>ac))</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    model.add(BatchNormalization())</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    model.add(Dropout(drop_dense))</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    model.add(Dense(<span class="dv">10</span>, activation<span class="op">=</span><span class="st">&#39;softmax&#39;</span>))</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    adm<span class="op">=</span>Adam(learning_rate<span class="op">=</span>learningrate, beta_1<span class="op">=</span><span class="fl">0.9</span>, beta_2<span class="op">=</span><span class="fl">0.999</span>, epsilon<span class="op">=</span><span class="fl">1e-08</span>)</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    model.<span class="bu">compile</span>(loss<span class="op">=</span><span class="st">&#39;categorical_crossentropy&#39;</span>, metrics<span class="op">=</span>[<span class="st">&#39;accuracy&#39;</span>],optimizer<span class="op">=</span>adm)</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> tf.device(<span class="st">&quot;/cpu:0&quot;</span>):</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>):</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>        k<span class="op">=</span><span class="dv">8</span><span class="op">*</span><span class="dv">2</span><span class="op">**</span>i</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;batch size &quot;</span><span class="op">+</span><span class="bu">str</span>(k))</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>        model.fit(x_train, y_train, batch_size<span class="op">=</span>k, epochs<span class="op">=</span><span class="dv">1</span>, validation_data<span class="op">=</span>(x_test, y_test))</span></code></pre></div>
+<pre><code>...
+batch size 512
+
+  1/118 [..............................] - ETA: 2:16 - loss: 0.0022 - accuracy: 1.0000
+  2/118 [..............................] - ETA: 2:24 - loss: 0.0080 - accuracy: 0.9980
+  3/118 [..............................] - ETA: 2:15 - loss: 0.0118 - accuracy: 0.9967
+  4/118 [&gt;.............................] - ETA: 2:15 - loss: 0.0094 - accuracy: 0.9976
+  5/118 [&gt;.............................] - ETA: 2:13 - loss: 0.0112 - accuracy: 0.9969
+  6/118 [&gt;.............................] - ETA: 2:12 - loss: 0.0105 - accuracy: 0.9967
+  7/118 [&gt;.............................] - ETA: 2:11 - loss: 0.0129 - accuracy: 0.9955
+  8/118 [=&gt;............................] - ETA: 2:09 - loss: 0.0122 - accuracy: 0.9958
+  9/118 [=&gt;............................] - ETA: 2:08 - loss: 0.0114 - accuracy: 0.9961
+ 10/118 [=&gt;............................] - ETA: 2:06 - loss: 0.0116 - accuracy: 0.9961
+ 11/118 [=&gt;............................] - ETA: 2:05 - loss: 0.0124 - accuracy: 0.9959
+ 12/118 [==&gt;...........................] - ETA: 2:03 - loss: 0.0117 - accuracy: 0.9963
+ 13/118 [==&gt;...........................] - ETA: 2:02 - loss: 0.0122 - accuracy: 0.9959
+ 14/118 [==&gt;...........................] - ETA: 2:01 - loss: 0.0116 - accuracy: 0.9962
+ 15/118 [==&gt;...........................] - ETA: 2:00 - loss: 0.0111 - accuracy: 0.9964
+ 16/118 [===&gt;..........................] - ETA: 2:01 - loss: 0.0108 - accuracy: 0.9965
+ 17/118 [===&gt;..........................] - ETA: 2:00 - loss: 0.0106 - accuracy: 0.9966
+ 18/118 [===&gt;..........................] - ETA: 1:59 - loss: 0.0108 - accuracy: 0.9965
+ 19/118 [===&gt;..........................] - ETA: 1:58 - loss: 0.0105 - accuracy: 0.9966
+ 20/118 [====&gt;.........................] - ETA: 1:57 - loss: 0.0103 - accuracy: 0.9966
+ 21/118 [====&gt;.........................] - ETA: 1:55 - loss: 0.0099 - accuracy: 0.9967
+ 22/118 [====&gt;.........................] - ETA: 1:54 - loss: 0.0097 - accuracy: 0.9968
+ 23/118 [====&gt;.........................] - ETA: 1:53 - loss: 0.0096 - accuracy: 0.9969
+ 24/118 [=====&gt;........................] - ETA: 1:52 - loss: 0.0097 - accuracy: 0.9967
+ 25/118 [=====&gt;........................] - ETA: 1:51 - loss: 0.0099 - accuracy: 0.9966
+ 26/118 [=====&gt;........................] - ETA: 1:51 - loss: 0.0109 - accuracy: 0.9966
+ 27/118 [=====&gt;........................] - ETA: 1:49 - loss: 0.0108 - accuracy: 0.9966
+ 28/118 [======&gt;.......................] - ETA: 1:48 - loss: 0.0104 - accuracy: 0.9967
+ 29/118 [======&gt;.......................] - ETA: 1:47 - loss: 0.0107 - accuracy: 0.9966
+ 30/118 [======&gt;.......................] - ETA: 1:46 - loss: 0.0105 - accuracy: 0.9966
+ 31/118 [======&gt;.......................] - ETA: 1:45 - loss: 0.0106 - accuracy: 0.9966
+ 32/118 [=======&gt;......................] - ETA: 1:43 - loss: 0.0107 - accuracy: 0.9966
+ 33/118 [=======&gt;......................] - ETA: 1:42 - loss: 0.0108 - accuracy: 0.9966
+ 34/118 [=======&gt;......................] - ETA: 1:41 - loss: 0.0106 - accuracy: 0.9967
+ 35/118 [=======&gt;......................] - ETA: 1:40 - loss: 0.0110 - accuracy: 0.9964
+ 36/118 [========&gt;.....................] - ETA: 1:39 - loss: 0.0110 - accuracy: 0.9964
+ 37/118 [========&gt;.....................] - ETA: 1:37 - loss: 0.0108 - accuracy: 0.9965
+ 38/118 [========&gt;.....................] - ETA: 1:36 - loss: 0.0105 - accuracy: 0.9966
+ 39/118 [========&gt;.....................] - ETA: 1:35 - loss: 0.0104 - accuracy: 0.9967
+ 40/118 [=========&gt;....................] - ETA: 1:34 - loss: 0.0105 - accuracy: 0.9967
+ 41/118 [=========&gt;....................] - ETA: 1:32 - loss: 0.0103 - accuracy: 0.9968
+ 42/118 [=========&gt;....................] - ETA: 1:31 - loss: 0.0104 - accuracy: 0.9968
+ 43/118 [=========&gt;....................] - ETA: 1:30 - loss: 0.0102 - accuracy: 0.9968
+ 44/118 [==========&gt;...................] - ETA: 1:29 - loss: 0.0102 - accuracy: 0.9968
+ 45/118 [==========&gt;...................] - ETA: 1:28 - loss: 0.0101 - accuracy: 0.9969
+ 46/118 [==========&gt;...................] - ETA: 1:27 - loss: 0.0099 - accuracy: 0.9969
+ 47/118 [==========&gt;...................] - ETA: 1:26 - loss: 0.0099 - accuracy: 0.9969
+ 48/118 [===========&gt;..................] - ETA: 1:24 - loss: 0.0101 - accuracy: 0.9969
+ 49/118 [===========&gt;..................] - ETA: 1:23 - loss: 0.0099 - accuracy: 0.9969
+ 50/118 [===========&gt;..................] - ETA: 1:22 - loss: 0.0101 - accuracy: 0.9967
+ 51/118 [===========&gt;..................] - ETA: 1:21 - loss: 0.0102 - accuracy: 0.9966
+ 52/118 [============&gt;.................] - ETA: 1:19 - loss: 0.0101 - accuracy: 0.9967
+ 53/118 [============&gt;.................] - ETA: 1:18 - loss: 0.0101 - accuracy: 0.9967
+ 54/118 [============&gt;.................] - ETA: 1:17 - loss: 0.0101 - accuracy: 0.9967
+ 55/118 [============&gt;.................] - ETA: 1:16 - loss: 0.0102 - accuracy: 0.9967
+ 56/118 [=============&gt;................] - ETA: 1:15 - loss: 0.0101 - accuracy: 0.9967
+ 57/118 [=============&gt;................] - ETA: 1:13 - loss: 0.0100 - accuracy: 0.9967
+ 58/118 [=============&gt;................] - ETA: 1:12 - loss: 0.0100 - accuracy: 0.9968
+ 59/118 [==============&gt;...............] - ETA: 1:11 - loss: 0.0099 - accuracy: 0.9968
+ 60/118 [==============&gt;...............] - ETA: 1:10 - loss: 0.0099 - accuracy: 0.9968
+ 61/118 [==============&gt;...............] - ETA: 1:08 - loss: 0.0100 - accuracy: 0.9967
+ 62/118 [==============&gt;...............] - ETA: 1:07 - loss: 0.0099 - accuracy: 0.9968
+ 63/118 [===============&gt;..............] - ETA: 1:06 - loss: 0.0099 - accuracy: 0.9967
+ 64/118 [===============&gt;..............] - ETA: 1:05 - loss: 0.0101 - accuracy: 0.9967
+ 65/118 [===============&gt;..............] - ETA: 1:04 - loss: 0.0100 - accuracy: 0.9968
+ 66/118 [===============&gt;..............] - ETA: 1:02 - loss: 0.0099 - accuracy: 0.9967
+ 67/118 [================&gt;.............] - ETA: 1:01 - loss: 0.0098 - accuracy: 0.9968
+ 68/118 [================&gt;.............] - ETA: 1:00 - loss: 0.0099 - accuracy: 0.9968
+ 69/118 [================&gt;.............] - ETA: 59s - loss: 0.0098 - accuracy: 0.9968 
+ 70/118 [================&gt;.............] - ETA: 58s - loss: 0.0097 - accuracy: 0.9968
+ 71/118 [=================&gt;............] - ETA: 57s - loss: 0.0096 - accuracy: 0.9968
+ 72/118 [=================&gt;............] - ETA: 55s - loss: 0.0095 - accuracy: 0.9969
+ 73/118 [=================&gt;............] - ETA: 54s - loss: 0.0095 - accuracy: 0.9969
+ 74/118 [=================&gt;............] - ETA: 53s - loss: 0.0095 - accuracy: 0.9969
+ 75/118 [==================&gt;...........] - ETA: 52s - loss: 0.0095 - accuracy: 0.9968
+ 76/118 [==================&gt;...........] - ETA: 50s - loss: 0.0096 - accuracy: 0.9969
+ 77/118 [==================&gt;...........] - ETA: 49s - loss: 0.0096 - accuracy: 0.9969
+ 78/118 [==================&gt;...........] - ETA: 48s - loss: 0.0095 - accuracy: 0.9969
+ 79/118 [===================&gt;..........] - ETA: 47s - loss: 0.0094 - accuracy: 0.9969
+ 80/118 [===================&gt;..........] - ETA: 46s - loss: 0.0094 - accuracy: 0.9969
+ 81/118 [===================&gt;..........] - ETA: 45s - loss: 0.0093 - accuracy: 0.9969
+ 82/118 [===================&gt;..........] - ETA: 43s - loss: 0.0093 - accuracy: 0.9970
+ 83/118 [====================&gt;.........] - ETA: 42s - loss: 0.0093 - accuracy: 0.9969
+ 84/118 [====================&gt;.........] - ETA: 41s - loss: 0.0093 - accuracy: 0.9970
+ 85/118 [====================&gt;.........] - ETA: 40s - loss: 0.0093 - accuracy: 0.9969
+ 86/118 [====================&gt;.........] - ETA: 38s - loss: 0.0093 - accuracy: 0.9969
+ 87/118 [=====================&gt;........] - ETA: 37s - loss: 0.0092 - accuracy: 0.9970
+ 88/118 [=====================&gt;........] - ETA: 36s - loss: 0.0092 - accuracy: 0.9970
+ 89/118 [=====================&gt;........] - ETA: 35s - loss: 0.0091 - accuracy: 0.9970
+ 90/118 [=====================&gt;........] - ETA: 34s - loss: 0.0093 - accuracy: 0.9970
+ 91/118 [======================&gt;.......] - ETA: 32s - loss: 0.0095 - accuracy: 0.9969
+ 92/118 [======================&gt;.......] - ETA: 31s - loss: 0.0094 - accuracy: 0.9969
+ 93/118 [======================&gt;.......] - ETA: 30s - loss: 0.0094 - accuracy: 0.9970
+ 94/118 [======================&gt;.......] - ETA: 29s - loss: 0.0093 - accuracy: 0.9970
+ 95/118 [=======================&gt;......] - ETA: 28s - loss: 0.0093 - accuracy: 0.9970
+ 96/118 [=======================&gt;......] - ETA: 26s - loss: 0.0092 - accuracy: 0.9970
+ 97/118 [=======================&gt;......] - ETA: 25s - loss: 0.0092 - accuracy: 0.9970
+ 98/118 [=======================&gt;......] - ETA: 24s - loss: 0.0092 - accuracy: 0.9970
+ 99/118 [========================&gt;.....] - ETA: 23s - loss: 0.0091 - accuracy: 0.9970
+100/118 [========================&gt;.....] - ETA: 21s - loss: 0.0091 - accuracy: 0.9971
+101/118 [========================&gt;.....] - ETA: 20s - loss: 0.0090 - accuracy: 0.9971
+102/118 [========================&gt;.....] - ETA: 19s - loss: 0.0091 - accuracy: 0.9971
+103/118 [=========================&gt;....] - ETA: 18s - loss: 0.0091 - accuracy: 0.9971
+104/118 [=========================&gt;....] - ETA: 17s - loss: 0.0092 - accuracy: 0.9970
+105/118 [=========================&gt;....] - ETA: 15s - loss: 0.0091 - accuracy: 0.9971
+106/118 [=========================&gt;....] - ETA: 14s - loss: 0.0092 - accuracy: 0.9971
+107/118 [==========================&gt;...] - ETA: 13s - loss: 0.0091 - accuracy: 0.9971
+108/118 [==========================&gt;...] - ETA: 12s - loss: 0.0091 - accuracy: 0.9971
+109/118 [==========================&gt;...] - ETA: 10s - loss: 0.0090 - accuracy: 0.9971
+110/118 [==========================&gt;...] - ETA: 9s - loss: 0.0091 - accuracy: 0.9971 
+111/118 [===========================&gt;..] - ETA: 8s - loss: 0.0090 - accuracy: 0.9971
+112/118 [===========================&gt;..] - ETA: 7s - loss: 0.0091 - accuracy: 0.9971
+113/118 [===========================&gt;..] - ETA: 6s - loss: 0.0091 - accuracy: 0.9971
+114/118 [===========================&gt;..] - ETA: 4s - loss: 0.0090 - accuracy: 0.9971
+115/118 [============================&gt;.] - ETA: 3s - loss: 0.0090 - accuracy: 0.9971
+116/118 [============================&gt;.] - ETA: 2s - loss: 0.0090 - accuracy: 0.9971
+117/118 [============================&gt;.] - ETA: 1s - loss: 0.0090 - accuracy: 0.9971
+118/118 [==============================] - ETA: 0s - loss: 0.0091 - accuracy: 0.9971
+118/118 [==============================] - 147s 1s/step - loss: 0.0091 - accuracy: 0.9971 - val_loss: 0.0149 - val_accuracy: 0.9944
+&lt;keras.callbacks.History object at 0x000001535024DD30&gt;</code></pre>
 </div>
 </div>
 
