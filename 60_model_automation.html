@@ -1611,6 +1611,109 @@ window.initializeCodeFolding = function(show) {
 
 
 
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -1858,8 +1961,476 @@ Fully conversational interaction with the human user.</p>
 </ul>
 </div>
 </div>
-<div id="section" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> </h1>
+<div id="install-autokeras" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> AutoKeras</h1>
+<p><a href="https://autokeras.com/">AutoKeras</a>는 Texas A&amp;M
+대학에서 개발한 Keras 에 기반한 AutoML 시스템이다. AutoKeras 의 목표는
+모든 사람에게 기계학습을 쉽게 할 수 있게 하는 것으로 일종의 기계학습
+민주화 운동으로 볼 수 있다.</p>
+<p>Luis Sobrecueva (May 21, 2021), “Automated Machine Learning with
+AutoKeras: Deep learning made accessible for everyone with just few
+lines of coding”, Packt Publishing</p>
+<div id="install-autokeras0" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> 설치</h2>
+<pre><code>pip install git+https://github.com/keras-team/keras-tuner.git
+pip install autokeras</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.python.keras.utils.data_utils <span class="im">import</span> Sequence</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> autokeras <span class="im">as</span> ak</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">###### GPU 활성화 코드 ##############</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span>] <span class="op">=</span> <span class="st">&quot;2&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> tf.compat.v1.ConfigProto(log_device_placement<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>config.gpu_options.allow_growth <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sess <span class="op">=</span> tf.compat.v1.Session(config<span class="op">=</span>config)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#####################################</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>(x_train, y_train), (x_test, y_test) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x_train.shape)  <span class="co"># (60000, 28, 28)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y_train.shape)  <span class="co"># (60000,)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y_train[:<span class="dv">3</span>])  <span class="co"># array([7, 2, 1], dtype=uint8)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the image classifier.</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>clf <span class="op">=</span> ak.ImageClassifier(overwrite<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>                         max_trials<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                         distribution_strategy<span class="op">=</span>tf.distribute.MirroredStrategy())</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Feed the image classifier with training data.</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>clf.fit(x_train, </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        y_train, </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Split the training data and use the last 15% as validation data.</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        validation_split<span class="op">=</span><span class="fl">0.15</span>,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        epochs<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div>
+<pre><code>Epoch 10/10
+
+   1/1500 [..............................] - ETA: 16s - loss: 4.0384e-04 - accuracy: 1.0000
+   7/1500 [..............................] - ETA: 12s - loss: 0.0262 - accuracy: 0.9911    
+  11/1500 [..............................] - ETA: 15s - loss: 0.0275 - accuracy: 0.9915
+  18/1500 [..............................] - ETA: 13s - loss: 0.0526 - accuracy: 0.9913
+  24/1500 [..............................] - ETA: 13s - loss: 0.0443 - accuracy: 0.9909
+  30/1500 [..............................] - ETA: 13s - loss: 0.0413 - accuracy: 0.9906
+  33/1500 [..............................] - ETA: 23s - loss: 0.0490 - accuracy: 0.9896
+  39/1500 [..............................] - ETA: 22s - loss: 0.0451 - accuracy: 0.9904
+  45/1500 [..............................] - ETA: 20s - loss: 0.0448 - accuracy: 0.9896
+  50/1500 [&gt;.............................] - ETA: 20s - loss: 0.0413 - accuracy: 0.9900
+  54/1500 [&gt;.............................] - ETA: 19s - loss: 0.0407 - accuracy: 0.9902
+  61/1500 [&gt;.............................] - ETA: 18s - loss: 0.0390 - accuracy: 0.9908
+  67/1500 [&gt;.............................] - ETA: 18s - loss: 0.0379 - accuracy: 0.9911
+  74/1500 [&gt;.............................] - ETA: 17s - loss: 0.0359 - accuracy: 0.9916
+  79/1500 [&gt;.............................] - ETA: 17s - loss: 0.0345 - accuracy: 0.9917
+  86/1500 [&gt;.............................] - ETA: 16s - loss: 0.0369 - accuracy: 0.9909
+  93/1500 [&gt;.............................] - ETA: 16s - loss: 0.0367 - accuracy: 0.9903
+ 100/1500 [=&gt;............................] - ETA: 15s - loss: 0.0348 - accuracy: 0.9906
+ 104/1500 [=&gt;............................] - ETA: 15s - loss: 0.0340 - accuracy: 0.9910
+ 111/1500 [=&gt;............................] - ETA: 15s - loss: 0.0322 - accuracy: 0.9916
+ 116/1500 [=&gt;............................] - ETA: 15s - loss: 0.0333 - accuracy: 0.9911
+ 123/1500 [=&gt;............................] - ETA: 14s - loss: 0.0329 - accuracy: 0.9909
+ 126/1500 [=&gt;............................] - ETA: 24s - loss: 0.0346 - accuracy: 0.9903
+ 133/1500 [=&gt;............................] - ETA: 23s - loss: 0.0340 - accuracy: 0.9906
+ 140/1500 [=&gt;............................] - ETA: 23s - loss: 0.0354 - accuracy: 0.9902
+ 143/1500 [=&gt;............................] - ETA: 23s - loss: 0.0350 - accuracy: 0.9902
+ 149/1500 [=&gt;............................] - ETA: 22s - loss: 0.0348 - accuracy: 0.9901
+ 156/1500 [==&gt;...........................] - ETA: 21s - loss: 0.0346 - accuracy: 0.9898
+ 163/1500 [==&gt;...........................] - ETA: 21s - loss: 0.0343 - accuracy: 0.9898
+ 167/1500 [==&gt;...........................] - ETA: 21s - loss: 0.0353 - accuracy: 0.9891
+ 174/1500 [==&gt;...........................] - ETA: 20s - loss: 0.0359 - accuracy: 0.9885
+ 181/1500 [==&gt;...........................] - ETA: 20s - loss: 0.0356 - accuracy: 0.9886
+ 187/1500 [==&gt;...........................] - ETA: 19s - loss: 0.0359 - accuracy: 0.9880
+ 191/1500 [==&gt;...........................] - ETA: 19s - loss: 0.0357 - accuracy: 0.9881
+ 198/1500 [==&gt;...........................] - ETA: 19s - loss: 0.0351 - accuracy: 0.9883
+ 205/1500 [===&gt;..........................] - ETA: 18s - loss: 0.0346 - accuracy: 0.9886
+ 212/1500 [===&gt;..........................] - ETA: 18s - loss: 0.0346 - accuracy: 0.9885
+ 215/1500 [===&gt;..........................] - ETA: 18s - loss: 0.0342 - accuracy: 0.9887
+ 222/1500 [===&gt;..........................] - ETA: 17s - loss: 0.0343 - accuracy: 0.9887
+ 229/1500 [===&gt;..........................] - ETA: 17s - loss: 0.0346 - accuracy: 0.9887
+ 236/1500 [===&gt;..........................] - ETA: 17s - loss: 0.0349 - accuracy: 0.9887
+ 240/1500 [===&gt;..........................] - ETA: 17s - loss: 0.0346 - accuracy: 0.9888
+ 247/1500 [===&gt;..........................] - ETA: 16s - loss: 0.0351 - accuracy: 0.9886
+ 254/1500 [====&gt;.........................] - ETA: 16s - loss: 0.0350 - accuracy: 0.9886
+ 261/1500 [====&gt;.........................] - ETA: 16s - loss: 0.0359 - accuracy: 0.9885
+ 265/1500 [====&gt;.........................] - ETA: 16s - loss: 0.0357 - accuracy: 0.9886
+ 272/1500 [====&gt;.........................] - ETA: 16s - loss: 0.0353 - accuracy: 0.9887
+ 279/1500 [====&gt;.........................] - ETA: 15s - loss: 0.0363 - accuracy: 0.9886
+ 284/1500 [====&gt;.........................] - ETA: 15s - loss: 0.0357 - accuracy: 0.9888
+ 291/1500 [====&gt;.........................] - ETA: 15s - loss: 0.0352 - accuracy: 0.9889
+ 298/1500 [====&gt;.........................] - ETA: 15s - loss: 0.0358 - accuracy: 0.9888
+ 305/1500 [=====&gt;........................] - ETA: 15s - loss: 0.0356 - accuracy: 0.9887
+ 310/1500 [=====&gt;........................] - ETA: 15s - loss: 0.0351 - accuracy: 0.9889
+ 317/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0346 - accuracy: 0.9890
+ 324/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0346 - accuracy: 0.9889
+ 331/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0341 - accuracy: 0.9890
+ 335/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0337 - accuracy: 0.9892
+ 342/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0338 - accuracy: 0.9893
+ 348/1500 [=====&gt;........................] - ETA: 14s - loss: 0.0350 - accuracy: 0.9890
+ 354/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0348 - accuracy: 0.9891
+ 358/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0346 - accuracy: 0.9892
+ 365/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0343 - accuracy: 0.9893
+ 372/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0345 - accuracy: 0.9892
+ 379/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0343 - accuracy: 0.9891
+ 383/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0342 - accuracy: 0.9891
+ 390/1500 [======&gt;.......................] - ETA: 13s - loss: 0.0339 - accuracy: 0.9893
+ 397/1500 [======&gt;.......................] - ETA: 12s - loss: 0.0339 - accuracy: 0.9891
+ 404/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0336 - accuracy: 0.9892
+ 408/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0334 - accuracy: 0.9892
+ 414/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0333 - accuracy: 0.9893
+ 420/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0332 - accuracy: 0.9892
+ 427/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0330 - accuracy: 0.9892
+ 434/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0327 - accuracy: 0.9892
+ 441/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0330 - accuracy: 0.9890
+ 448/1500 [=======&gt;......................] - ETA: 12s - loss: 0.0328 - accuracy: 0.9890
+ 453/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0326 - accuracy: 0.9891
+ 460/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0325 - accuracy: 0.9891
+ 467/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0327 - accuracy: 0.9890
+ 474/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0325 - accuracy: 0.9891
+ 478/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0324 - accuracy: 0.9891
+ 484/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0326 - accuracy: 0.9891
+ 491/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0326 - accuracy: 0.9891
+ 498/1500 [========&gt;.....................] - ETA: 11s - loss: 0.0329 - accuracy: 0.9890
+ 503/1500 [=========&gt;....................] - ETA: 11s - loss: 0.0329 - accuracy: 0.9889
+ 510/1500 [=========&gt;....................] - ETA: 11s - loss: 0.0327 - accuracy: 0.9889
+ 517/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0324 - accuracy: 0.9890
+ 523/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0325 - accuracy: 0.9891
+ 529/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0324 - accuracy: 0.9891
+ 536/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0323 - accuracy: 0.9891
+ 543/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0323 - accuracy: 0.9892
+ 547/1500 [=========&gt;....................] - ETA: 10s - loss: 0.0322 - accuracy: 0.9892
+ 554/1500 [==========&gt;...................] - ETA: 10s - loss: 0.0320 - accuracy: 0.9892
+ 561/1500 [==========&gt;...................] - ETA: 10s - loss: 0.0317 - accuracy: 0.9894
+ 568/1500 [==========&gt;...................] - ETA: 10s - loss: 0.0320 - accuracy: 0.9892
+ 572/1500 [==========&gt;...................] - ETA: 10s - loss: 0.0320 - accuracy: 0.9891
+ 579/1500 [==========&gt;...................] - ETA: 10s - loss: 0.0320 - accuracy: 0.9891
+ 586/1500 [==========&gt;...................] - ETA: 9s - loss: 0.0319 - accuracy: 0.9891 
+ 593/1500 [==========&gt;...................] - ETA: 9s - loss: 0.0317 - accuracy: 0.9892
+ 597/1500 [==========&gt;...................] - ETA: 9s - loss: 0.0315 - accuracy: 0.9893
+ 604/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0317 - accuracy: 0.9893
+ 611/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0318 - accuracy: 0.9893
+ 617/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0317 - accuracy: 0.9893
+ 624/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0314 - accuracy: 0.9894
+ 631/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0323 - accuracy: 0.9893
+ 638/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0324 - accuracy: 0.9893
+ 642/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0323 - accuracy: 0.9893
+ 649/1500 [===========&gt;..................] - ETA: 9s - loss: 0.0322 - accuracy: 0.9894
+ 656/1500 [============&gt;.................] - ETA: 8s - loss: 0.0322 - accuracy: 0.9894
+ 663/1500 [============&gt;.................] - ETA: 8s - loss: 0.0324 - accuracy: 0.9894
+ 665/1500 [============&gt;.................] - ETA: 9s - loss: 0.0323 - accuracy: 0.9894
+ 671/1500 [============&gt;.................] - ETA: 9s - loss: 0.0325 - accuracy: 0.9894
+ 677/1500 [============&gt;.................] - ETA: 9s - loss: 0.0324 - accuracy: 0.9894
+ 681/1500 [============&gt;.................] - ETA: 8s - loss: 0.0323 - accuracy: 0.9895
+ 688/1500 [============&gt;.................] - ETA: 8s - loss: 0.0324 - accuracy: 0.9894
+ 695/1500 [============&gt;.................] - ETA: 8s - loss: 0.0323 - accuracy: 0.9894
+ 702/1500 [=============&gt;................] - ETA: 8s - loss: 0.0322 - accuracy: 0.9894
+ 706/1500 [=============&gt;................] - ETA: 8s - loss: 0.0323 - accuracy: 0.9893
+ 713/1500 [=============&gt;................] - ETA: 8s - loss: 0.0326 - accuracy: 0.9892
+ 720/1500 [=============&gt;................] - ETA: 8s - loss: 0.0323 - accuracy: 0.9892
+ 727/1500 [=============&gt;................] - ETA: 8s - loss: 0.0322 - accuracy: 0.9893
+ 731/1500 [=============&gt;................] - ETA: 8s - loss: 0.0320 - accuracy: 0.9893
+ 738/1500 [=============&gt;................] - ETA: 8s - loss: 0.0319 - accuracy: 0.9894
+ 745/1500 [=============&gt;................] - ETA: 8s - loss: 0.0318 - accuracy: 0.9893
+ 752/1500 [==============&gt;...............] - ETA: 8s - loss: 0.0317 - accuracy: 0.9894
+ 756/1500 [==============&gt;...............] - ETA: 8s - loss: 0.0316 - accuracy: 0.9894
+ 763/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0314 - accuracy: 0.9895
+ 770/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0314 - accuracy: 0.9895
+ 777/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0317 - accuracy: 0.9895
+ 782/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0316 - accuracy: 0.9896
+ 789/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0315 - accuracy: 0.9895
+ 795/1500 [==============&gt;...............] - ETA: 7s - loss: 0.0314 - accuracy: 0.9895
+ 801/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0315 - accuracy: 0.9895
+ 808/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0315 - accuracy: 0.9896
+ 815/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0316 - accuracy: 0.9896
+ 822/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0314 - accuracy: 0.9897
+ 826/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0315 - accuracy: 0.9896
+ 832/1500 [===============&gt;..............] - ETA: 7s - loss: 0.0318 - accuracy: 0.9894
+ 838/1500 [===============&gt;..............] - ETA: 6s - loss: 0.0323 - accuracy: 0.9893
+ 845/1500 [===============&gt;..............] - ETA: 6s - loss: 0.0326 - accuracy: 0.9893
+ 849/1500 [===============&gt;..............] - ETA: 6s - loss: 0.0325 - accuracy: 0.9894
+ 856/1500 [================&gt;.............] - ETA: 6s - loss: 0.0325 - accuracy: 0.9894
+ 862/1500 [================&gt;.............] - ETA: 6s - loss: 0.0327 - accuracy: 0.9894
+ 869/1500 [================&gt;.............] - ETA: 6s - loss: 0.0326 - accuracy: 0.9895
+ 873/1500 [================&gt;.............] - ETA: 6s - loss: 0.0326 - accuracy: 0.9895
+ 879/1500 [================&gt;.............] - ETA: 6s - loss: 0.0324 - accuracy: 0.9895
+ 886/1500 [================&gt;.............] - ETA: 6s - loss: 0.0325 - accuracy: 0.9895
+ 893/1500 [================&gt;.............] - ETA: 6s - loss: 0.0323 - accuracy: 0.9896
+ 897/1500 [================&gt;.............] - ETA: 6s - loss: 0.0323 - accuracy: 0.9897
+ 904/1500 [=================&gt;............] - ETA: 6s - loss: 0.0322 - accuracy: 0.9897
+ 911/1500 [=================&gt;............] - ETA: 6s - loss: 0.0322 - accuracy: 0.9896
+ 917/1500 [=================&gt;............] - ETA: 6s - loss: 0.0326 - accuracy: 0.9895
+ 923/1500 [=================&gt;............] - ETA: 6s - loss: 0.0325 - accuracy: 0.9896
+ 929/1500 [=================&gt;............] - ETA: 5s - loss: 0.0324 - accuracy: 0.9896
+ 936/1500 [=================&gt;............] - ETA: 5s - loss: 0.0324 - accuracy: 0.9895
+ 941/1500 [=================&gt;............] - ETA: 5s - loss: 0.0325 - accuracy: 0.9895
+ 947/1500 [=================&gt;............] - ETA: 5s - loss: 0.0326 - accuracy: 0.9895
+ 954/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0326 - accuracy: 0.9895
+ 961/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0324 - accuracy: 0.9896
+ 965/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0324 - accuracy: 0.9896
+ 972/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0324 - accuracy: 0.9896
+ 979/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0323 - accuracy: 0.9896
+ 986/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0321 - accuracy: 0.9897
+ 989/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0321 - accuracy: 0.9897
+ 995/1500 [==================&gt;...........] - ETA: 5s - loss: 0.0322 - accuracy: 0.9897
+1002/1500 [===================&gt;..........] - ETA: 5s - loss: 0.0323 - accuracy: 0.9896
+1008/1500 [===================&gt;..........] - ETA: 5s - loss: 0.0322 - accuracy: 0.9897
+1012/1500 [===================&gt;..........] - ETA: 5s - loss: 0.0324 - accuracy: 0.9897
+1019/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0323 - accuracy: 0.9897
+1025/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0324 - accuracy: 0.9897
+1031/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0323 - accuracy: 0.9897
+1035/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0321 - accuracy: 0.9897
+1042/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0320 - accuracy: 0.9898
+1048/1500 [===================&gt;..........] - ETA: 4s - loss: 0.0321 - accuracy: 0.9897
+1054/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0320 - accuracy: 0.9898
+1060/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0319 - accuracy: 0.9898
+1067/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0317 - accuracy: 0.9899
+1074/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0315 - accuracy: 0.9899
+1078/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0318 - accuracy: 0.9899
+1085/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0318 - accuracy: 0.9899
+1092/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0320 - accuracy: 0.9898
+1099/1500 [====================&gt;.........] - ETA: 4s - loss: 0.0319 - accuracy: 0.9898
+1104/1500 [=====================&gt;........] - ETA: 4s - loss: 0.0320 - accuracy: 0.9898
+1111/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0322 - accuracy: 0.9898
+1117/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0323 - accuracy: 0.9898
+1124/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0322 - accuracy: 0.9898
+1127/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0322 - accuracy: 0.9899
+1134/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0322 - accuracy: 0.9899
+1141/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0320 - accuracy: 0.9899
+1148/1500 [=====================&gt;........] - ETA: 3s - loss: 0.0320 - accuracy: 0.9899
+1155/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0319 - accuracy: 0.9899
+1162/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0318 - accuracy: 0.9900
+1168/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0320 - accuracy: 0.9900
+1172/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0321 - accuracy: 0.9900
+1179/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0320 - accuracy: 0.9900
+1186/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0320 - accuracy: 0.9900
+1192/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0319 - accuracy: 0.9900
+1196/1500 [======================&gt;.......] - ETA: 3s - loss: 0.0319 - accuracy: 0.9900
+1203/1500 [=======================&gt;......] - ETA: 3s - loss: 0.0318 - accuracy: 0.9901
+1209/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0318 - accuracy: 0.9900
+1215/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0317 - accuracy: 0.9901
+1217/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0318 - accuracy: 0.9900
+1223/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0318 - accuracy: 0.9900
+1229/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0318 - accuracy: 0.9900
+1234/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0319 - accuracy: 0.9899
+1237/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0319 - accuracy: 0.9899
+1243/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0320 - accuracy: 0.9899
+1249/1500 [=======================&gt;......] - ETA: 2s - loss: 0.0319 - accuracy: 0.9899
+1255/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0320 - accuracy: 0.9899
+1259/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0319 - accuracy: 0.9899
+1266/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0319 - accuracy: 0.9900
+1273/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0318 - accuracy: 0.9899
+1281/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0318 - accuracy: 0.9899
+1286/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0316 - accuracy: 0.9899
+1293/1500 [========================&gt;.....] - ETA: 2s - loss: 0.0317 - accuracy: 0.9899
+1300/1500 [=========================&gt;....] - ETA: 2s - loss: 0.0318 - accuracy: 0.9898
+1307/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0317 - accuracy: 0.9898
+1311/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0319 - accuracy: 0.9898
+1318/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1325/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0319 - accuracy: 0.9898
+1331/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0321 - accuracy: 0.9897
+1334/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1341/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0322 - accuracy: 0.9898
+1348/1500 [=========================&gt;....] - ETA: 1s - loss: 0.0322 - accuracy: 0.9898
+1355/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1359/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0321 - accuracy: 0.9898
+1366/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1373/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1380/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0320 - accuracy: 0.9898
+1383/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0319 - accuracy: 0.9898
+1389/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0319 - accuracy: 0.9898
+1396/1500 [==========================&gt;...] - ETA: 1s - loss: 0.0318 - accuracy: 0.9898
+1402/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0318 - accuracy: 0.9898
+1404/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0317 - accuracy: 0.9899
+1411/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0318 - accuracy: 0.9898
+1419/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0317 - accuracy: 0.9898
+1426/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0317 - accuracy: 0.9898
+1432/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0318 - accuracy: 0.9897
+1439/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0319 - accuracy: 0.9897
+1446/1500 [===========================&gt;..] - ETA: 0s - loss: 0.0320 - accuracy: 0.9897
+1450/1500 [============================&gt;.] - ETA: 0s - loss: 0.0320 - accuracy: 0.9897
+1457/1500 [============================&gt;.] - ETA: 0s - loss: 0.0320 - accuracy: 0.9896
+1463/1500 [============================&gt;.] - ETA: 0s - loss: 0.0320 - accuracy: 0.9896
+1470/1500 [============================&gt;.] - ETA: 0s - loss: 0.0320 - accuracy: 0.9896
+1474/1500 [============================&gt;.] - ETA: 0s - loss: 0.0320 - accuracy: 0.9897
+1481/1500 [============================&gt;.] - ETA: 0s - loss: 0.0321 - accuracy: 0.9896
+1488/1500 [============================&gt;.] - ETA: 0s - loss: 0.0322 - accuracy: 0.9896
+1495/1500 [============================&gt;.] - ETA: 0s - loss: 0.0322 - accuracy: 0.9895
+1500/1500 [==============================] - ETA: 0s - loss: 0.0322 - accuracy: 0.9895
+1500/1500 [==============================] - 17s 11ms/step - loss: 0.0322 - accuracy: 0.9895 - val_loss: 0.0423 - val_accuracy: 0.9895</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict with the best model.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>predicted_y <span class="op">=</span> clf.predict(x_test)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(predicted_y)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   1/313 [..............................] - ETA: 6:49</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  16/313 [&gt;.............................] - ETA: 1s  </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  24/313 [=&gt;............................] - ETA: 1s</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  38/313 [==&gt;...........................] - ETA: 1s</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  53/313 [====&gt;.........................] - ETA: 1s</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  68/313 [=====&gt;........................] - ETA: 1s</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  80/313 [======&gt;.......................] - ETA: 1s</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  89/313 [=======&gt;......................] - ETA: 1s</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 103/313 [========&gt;.....................] - ETA: 0s</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 112/313 [=========&gt;....................] - ETA: 0s</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 125/313 [==========&gt;...................] - ETA: 0s</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 138/313 [============&gt;.................] - ETA: 0s</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 151/313 [=============&gt;................] - ETA: 0s</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 155/313 [=============&gt;................] - ETA: 0s</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 159/313 [==============&gt;...............] - ETA: 0s</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 171/313 [===============&gt;..............] - ETA: 0s</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 186/313 [================&gt;.............] - ETA: 0s</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 194/313 [=================&gt;............] - ETA: 0s</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 209/313 [===================&gt;..........] - ETA: 0s</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 222/313 [====================&gt;.........] - ETA: 0s</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 237/313 [=====================&gt;........] - ETA: 0s</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 246/313 [======================&gt;.......] - ETA: 0s</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 259/313 [=======================&gt;......] - ETA: 0s</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 272/313 [=========================&gt;....] - ETA: 0s</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 285/313 [==========================&gt;...] - ETA: 0s</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 288/313 [==========================&gt;...] - ETA: 0s</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 301/313 [===========================&gt;..] - ETA: 0s</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 313/313 [==============================] - ETA: 0s</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 313/313 [==============================] - 3s 5ms/step</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#   1/313 [..............................] - ETA: 29s</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#   6/313 [..............................] - ETA: 3s </span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#  20/313 [&gt;.............................] - ETA: 1s</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#  33/313 [==&gt;...........................] - ETA: 1s</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#  45/313 [===&gt;..........................] - ETA: 1s</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#  49/313 [===&gt;..........................] - ETA: 1s</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co">#  61/313 [====&gt;.........................] - ETA: 1s</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">#  76/313 [======&gt;.......................] - ETA: 1s</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">#  92/313 [=======&gt;......................] - ETA: 1s</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co"># 101/313 [========&gt;.....................] - ETA: 1s</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 117/313 [==========&gt;...................] - ETA: 0s</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co"># 132/313 [===========&gt;..................] - ETA: 0s</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co"># 142/313 [============&gt;.................] - ETA: 0s</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># 149/313 [=============&gt;................] - ETA: 0s</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="co"># 163/313 [==============&gt;...............] - ETA: 0s</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co"># 177/313 [===============&gt;..............] - ETA: 0s</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="co"># 187/313 [================&gt;.............] - ETA: 0s</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co"># 193/313 [=================&gt;............] - ETA: 0s</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 208/313 [==================&gt;...........] - ETA: 0s</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co"># 223/313 [====================&gt;.........] - ETA: 0s</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="co"># 232/313 [=====================&gt;........] - ETA: 0s</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="co"># 240/313 [======================&gt;.......] - ETA: 0s</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="co"># 255/313 [=======================&gt;......] - ETA: 0s</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="co"># 269/313 [========================&gt;.....] - ETA: 0s</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="co"># 283/313 [==========================&gt;...] - ETA: 0s</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="co"># 292/313 [==========================&gt;...] - ETA: 0s</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co"># 306/313 [============================&gt;.] - ETA: 0s</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a><span class="co"># 313/313 [==============================] - 1s 4ms/step</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt;&gt;&gt; print(predicted_y)</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="co"># [[&#39;7&#39;]</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="co">#  [&#39;2&#39;]</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a><span class="co">#  [&#39;1&#39;]</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a><span class="co">#  ...</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a><span class="co">#  [&#39;4&#39;]</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="co">#  [&#39;5&#39;]</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="co">#  [&#39;6&#39;]]</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate the best model with testing data.</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(clf.evaluate(x_test, y_test))</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="co">#   1/313 [..............................] - ETA: 1:53 - loss: 0.0070 - accuracy: 1.0000</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a><span class="co">#   9/313 [..............................] - ETA: 2s - loss: 0.0132 - accuracy: 0.9965  </span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a><span class="co">#  14/313 [&gt;.............................] - ETA: 2s - loss: 0.0262 - accuracy: 0.9911</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a><span class="co">#  19/313 [&gt;.............................] - ETA: 2s - loss: 0.0245 - accuracy: 0.9901</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="co">#  24/313 [=&gt;............................] - ETA: 2s - loss: 0.0259 - accuracy: 0.9883</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="co">#  33/313 [==&gt;...........................] - ETA: 2s - loss: 0.0433 - accuracy: 0.9839</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a><span class="co">#  38/313 [==&gt;...........................] - ETA: 2s - loss: 0.0437 - accuracy: 0.9844</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="co">#  46/313 [===&gt;..........................] - ETA: 2s - loss: 0.0526 - accuracy: 0.9810</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="co">#  55/313 [====&gt;.........................] - ETA: 2s - loss: 0.0545 - accuracy: 0.9807</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="co">#  64/313 [=====&gt;........................] - ETA: 1s - loss: 0.0542 - accuracy: 0.9814</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="co">#  69/313 [=====&gt;........................] - ETA: 1s - loss: 0.0599 - accuracy: 0.9805</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a><span class="co">#  75/313 [======&gt;.......................] - ETA: 1s - loss: 0.0585 - accuracy: 0.9808</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="co">#  84/313 [=======&gt;......................] - ETA: 1s - loss: 0.0589 - accuracy: 0.9807</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="co">#  93/313 [=======&gt;......................] - ETA: 1s - loss: 0.0588 - accuracy: 0.9802</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a><span class="co">#  99/313 [========&gt;.....................] - ETA: 1s - loss: 0.0576 - accuracy: 0.9804</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="co"># 107/313 [=========&gt;....................] - ETA: 1s - loss: 0.0553 - accuracy: 0.9813</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co"># 115/313 [==========&gt;...................] - ETA: 1s - loss: 0.0556 - accuracy: 0.9818</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="co"># 123/313 [==========&gt;...................] - ETA: 1s - loss: 0.0561 - accuracy: 0.9817</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="co"># 128/313 [===========&gt;..................] - ETA: 1s - loss: 0.0552 - accuracy: 0.9819</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="co"># 137/313 [============&gt;.................] - ETA: 1s - loss: 0.0541 - accuracy: 0.9822</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a><span class="co"># 145/313 [============&gt;.................] - ETA: 1s - loss: 0.0536 - accuracy: 0.9823</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="co"># 153/313 [=============&gt;................] - ETA: 1s - loss: 0.0541 - accuracy: 0.9820</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a><span class="co"># 155/313 [=============&gt;................] - ETA: 1s - loss: 0.0538 - accuracy: 0.9821</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a><span class="co"># 163/313 [==============&gt;...............] - ETA: 1s - loss: 0.0513 - accuracy: 0.9829</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a><span class="co"># 171/313 [===============&gt;..............] - ETA: 1s - loss: 0.0492 - accuracy: 0.9836</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a><span class="co"># 178/313 [================&gt;.............] - ETA: 1s - loss: 0.0474 - accuracy: 0.9842</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a><span class="co"># 180/313 [================&gt;.............] - ETA: 1s - loss: 0.0474 - accuracy: 0.9842</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="co"># 188/313 [=================&gt;............] - ETA: 0s - loss: 0.0460 - accuracy: 0.9845</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="co"># 197/313 [=================&gt;............] - ETA: 0s - loss: 0.0446 - accuracy: 0.9849</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a><span class="co"># 204/313 [==================&gt;...........] - ETA: 0s - loss: 0.0431 - accuracy: 0.9854</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a><span class="co"># 212/313 [===================&gt;..........] - ETA: 0s - loss: 0.0440 - accuracy: 0.9851</span></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="co"># 220/313 [====================&gt;.........] - ETA: 0s - loss: 0.0425 - accuracy: 0.9857</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co"># 228/313 [====================&gt;.........] - ETA: 0s - loss: 0.0410 - accuracy: 0.9862</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a><span class="co"># 234/313 [=====================&gt;........] - ETA: 0s - loss: 0.0400 - accuracy: 0.9865</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a><span class="co"># 242/313 [======================&gt;.......] - ETA: 0s - loss: 0.0387 - accuracy: 0.9870</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a><span class="co"># 251/313 [=======================&gt;......] - ETA: 0s - loss: 0.0375 - accuracy: 0.9874</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="co"># 254/313 [=======================&gt;......] - ETA: 0s - loss: 0.0378 - accuracy: 0.9873</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="co"># 257/313 [=======================&gt;......] - ETA: 0s - loss: 0.0374 - accuracy: 0.9875</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a><span class="co"># 265/313 [========================&gt;.....] - ETA: 0s - loss: 0.0365 - accuracy: 0.9877</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="co"># 273/313 [=========================&gt;....] - ETA: 0s - loss: 0.0355 - accuracy: 0.9881</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a><span class="co"># 278/313 [=========================&gt;....] - ETA: 0s - loss: 0.0348 - accuracy: 0.9883</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a><span class="co"># 283/313 [==========================&gt;...] - ETA: 0s - loss: 0.0355 - accuracy: 0.9882</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a><span class="co"># 291/313 [==========================&gt;...] - ETA: 0s - loss: 0.0346 - accuracy: 0.9885</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a><span class="co"># 299/313 [===========================&gt;..] - ETA: 0s - loss: 0.0339 - accuracy: 0.9887</span></span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="co"># 307/313 [============================&gt;.] - ETA: 0s - loss: 0.0362 - accuracy: 0.9879</span></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a><span class="co"># 312/313 [============================&gt;.] - ETA: 0s - loss: 0.0362 - accuracy: 0.9879</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a><span class="co"># 313/313 [==============================] - 3s 8ms/step - loss: 0.0362 - accuracy: 0.9879</span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a><span class="co"># [0.0361783429980278, 0.9879000186920166]</span></span></code></pre></div>
+</div>
+<div id="save-model" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> 모형 저장</h2>
+<pre class="pyton"><code>mnist_auto_model = clf.export_model()
+
+mnist_auto_model.save(&quot;data/mnist_auto_model.h5&quot;)</code></pre>
+</div>
+<div id="inference-autokeras" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Inference</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> load_model</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>mnist_inference_model <span class="op">=</span> load_model(<span class="st">&quot;data/mnist_auto_model.h5&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mnist_inference_model.predict(x_test[:<span class="dv">10</span>]))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1/1 [==============================] - ETA: 0s</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 1/1 [==============================] - 3s 3s/step</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># [[1.32050326e-09 5.58818547e-10 3.78649474e-07 9.99164172e-07</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.33203268e-10 2.78588975e-11 5.63584436e-16 9.99998569e-01</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   3.92891764e-09 2.32371775e-08]</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  [3.08622106e-07 4.29323836e-06 9.99992967e-01 2.70977765e-08</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.83834836e-09 4.31682412e-10 1.94188556e-06 6.18551694e-12</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   5.03049534e-07 3.12175737e-11]</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  [7.60133787e-08 9.99809682e-01 1.49333109e-05 2.55621785e-07</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.34683374e-04 2.41513249e-06 2.98452250e-07 2.57335432e-05</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.18708749e-05 3.97069293e-08]</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#  [9.99997616e-01 3.81995867e-12 8.80706295e-07 2.07579753e-09</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   6.43973819e-10 2.07098960e-08 1.32341120e-06 1.70947601e-09</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.69439502e-08 2.69762097e-07]</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#  [3.89613888e-08 1.29475808e-09 1.52856661e-08 1.29996272e-08</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   9.99991417e-01 2.09018178e-10 5.77958437e-09 1.13876794e-07</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#   3.00419210e-08 8.33169815e-06]</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#  [5.08510603e-08 9.99519467e-01 9.68662516e-06 5.38548832e-08</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.75294699e-04 2.23298940e-07 1.94389855e-08 2.77489919e-04</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.75310124e-05 1.79468174e-07]</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6.19284788e-12 2.30456476e-06 1.10171030e-07 3.57055230e-09</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   9.99865294e-01 5.86728781e-08 3.17030707e-11 4.35810307e-06</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.24242419e-04 3.70814996e-06]</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#  [9.81296034e-12 7.29698924e-09 1.23314339e-06 1.13969929e-06</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.19719491e-03 6.22080261e-05 2.93067370e-09 3.59439731e-08</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   6.32558251e-03 9.92412508e-01]</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1.11055797e-05 3.99178468e-11 8.96933550e-09 7.30776932e-08</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   8.18820172e-06 9.72040772e-01 2.64719762e-02 5.06327380e-09</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.46416645e-03 3.62182686e-06]</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co">#  [4.99363679e-08 2.78283840e-10 1.06951381e-08 4.76083045e-07</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.60303130e-03 4.39877361e-08 5.24907071e-12 8.03113682e-04</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="co">#   1.69744788e-04 9.97423530e-01]]</span></span></code></pre></div>
+</div>
+<div id="viz-autokeras" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> 모형 시각화</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.utils <span class="im">import</span> plot_model</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>plot_model(mnist_inference_model,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>           show_shapes<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>           show_layer_names<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>           to_file<span class="op">=</span><span class="st">&#39;assets/automation/mnist_autokeras.png&#39;</span>)</span></code></pre></div>
+</div>
 </div>
 
 
