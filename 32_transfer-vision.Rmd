@@ -58,9 +58,22 @@ flag_img %>%
 
 ## `reset` 이미지 인식 
 
+```{r, eval = TRUE}
 
-```{r}
+# R 에서 GPU 사용할 경우 GPU 버전 tensorflow 설치 -------------
+# install_keras(conda = "C:/Users/statkclee/anaconda3/Scripts/conda.exe",
+#               tensorflow = "gpu")
+# 
+# if(tensorflow::tf_gpu_configured()) {
+#   physical_devices = tf$config$list_physical_devices('GPU')
+#   tf$config$experimental$set_memory_growth(physical_devices[[1]],TRUE)
+# }
+
+# Disable GPU -------------
 library(keras)
+Sys.setenv("CUDA_VISIBLE_DEVICES" = -1)   
+ 
+use_backend("tensorflow") 
 
 # 이미지 데이터를 TF 넣을 수 있는 `array` 형태로 변환
 flag_img <- image_load("data/flag.png", target_size = c(224,224))
@@ -438,10 +451,308 @@ tibble(cnn = cnn_accuracy,
     scale_y_continuous(labels = scales::percent) +
     theme_light() +
     labs(title = "에포크 단계별 전이학습 모형 정확도 비교")
+```
 
+
+# Keras {.tabset}
+
+[Transfer Learning With Keras(Resnet-50)](https://chroniclesofai.com/transfer-learning-with-keras-resnet-50/) 사례를 바탕으로 Pretrained Model 을 사용한 전이학습을 실행해보자.
+
+## Pretrained Model 선정
+
+[Keras Applications - Available models](https://keras.io/api/applications/) 에서 최적 사전 학습 모델을 선택한다. 즉, 정확도는 높으나 크기가 작고 inference cpu + gpu 시간이 빠른 사전학습 모형을 선택한다.
+
+예를 들어, EfficientNetB3 사전학습 모형이 크기도 작고 cpu+gpu inference 시간도 빨라 선정한다.
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(scatterPlotMatrix)
+
+pretrained_models <- read_html(x = "https://keras.io/api/applications/") %>% 
+  html_element(css = "table") %>% 
+  html_table(fill = TRUE, header = TRUE)
+
+pretrained_models_tbl <- pretrained_models %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(depth)) %>% 
+  mutate(across(top_1_accuracy:time_ms_per_inference_step_gpu, parse_number))
+
+pretrained_models_tbl %>% 
+  rename(cpu_time = time_ms_per_inference_step_cpu,
+         gpu_time = time_ms_per_inference_step_gpu) %>% 
+  column_to_rownames(var = "model") %>% 
+  scatterPlotMatrix()
 
 ```
 
 
+## 환경설정
 
+
+```{python, eval = FALSE}
+import matplotlib.pyplot as plt
+import numpy as np
+import PIL
+from keras.layers.core import Dense,Flatten
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+import pathlib
+
+# GPU 설정 ----------------------
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import tensorflow as tf
+
+physical_devices = tf.config.list_physical_devices("GPU")
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+```
+
+
+## 데이터 가져오기
+
+```{python, eval = FALSE}
+
+dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
+
+data_dir = tf.keras.utils.get_file('flower_photos', origin=dataset_url, untar=True)
+
+data_dir = pathlib.Path(data_dir)
+```
+
+## 훈련/시험 데이터
+
+```{python, eval = FALSE}
+img_height,img_width=180,180
+batch_size=32
+
+train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+  pathlib.Path("data/flower_photos"), #data_dir
+  # data_dir,
+  validation_split=0.2,
+  subset="training",
+  label_mode='categorical',
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size)
+  
+val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+  pathlib.Path("data/flower_photos"), #data_dir
+  # data_dir,
+  label_mode='categorical',
+  validation_split=0.2,
+  subset="validation",
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size)  
+```
+
+## Pretrained Model 아키텍처
+
+```{python, eval = FALSE}
+efficient_model = Sequential()
+
+pretrained_model = tf.keras.applications.EfficientNetB3(include_top=False,
+                                                        input_shape=(180,180,3),
+                                                        pooling='avg',
+                                                        classes=5,
+                                                        weights='imagenet')
+
+
+for layer in pretrained_model.layers:
+  layer.trainable=False
+
+efficient_model.add(pretrained_model)
+
+efficient_model.summary()
+
+```
+
+```
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ efficientnetb3 (Functional)  (None, 1536)             10783535  
+                                                                 
+=================================================================
+Total params: 10,783,535
+Trainable params: 0
+Non-trainable params: 10,783,535
+_________________________________________________________________
+```
+
+
+## fine-tuning Model 아키텍쳐
+
+```{python, eval = FALSE}
+efficient_model.add(Flatten())
+efficient_model.add(Dense(512, activation='relu'))
+efficient_model.add(Dense(5, activation='softmax'))
+
+efficient_model.summary()
+```
+
+```
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ efficientnetb3 (Functional)  (None, 1536)             10783535  
+                                                                 
+ flatten (Flatten)           (None, 1536)              0         
+                                                                 
+ dense (Dense)               (None, 512)               786944    
+                                                                 
+ dense_1 (Dense)             (None, 5)                 2565      
+                                                                 
+=================================================================
+Total params: 11,573,044
+Trainable params: 789,509
+Non-trainable params: 10,783,535
+_________________________________________________________________
+```
+
+## 훈련
+
+```{python, eval = FALSE}
+efficient_model.compile(optimizer = Adam(learning_rate=0.001),
+                        loss = 'categorical_crossentropy',
+                        metrics = ['accuracy'])
+
+for i in range(7):
+    k = 8 * 2 ** i
+    print("batch size "+str(k))
+    efficient_model.fit(train_ds, 
+                        validation_data = val_ds, 
+                        batch_size = k,
+                        epochs=1)
+
+efficient_model.save_weights("data/model_efficient.h5")
+```
+
+```
+batch size 512
+
+ 1/92 [..............................] - ETA: 37s - loss: 0.0023 - accuracy: 1.0000
+ 2/92 [..............................] - ETA: 25s - loss: 0.0043 - accuracy: 1.0000
+ 3/92 [..............................] - ETA: 23s - loss: 0.0043 - accuracy: 1.0000
+ 4/92 [>.............................] - ETA: 23s - loss: 0.0079 - accuracy: 1.0000
+ 5/92 [>.............................] - ETA: 23s - loss: 0.0097 - accuracy: 1.0000
+ 6/92 [>.............................] - ETA: 22s - loss: 0.0125 - accuracy: 1.0000
+ 7/92 [=>............................] - ETA: 22s - loss: 0.0120 - accuracy: 1.0000
+ 8/92 [=>............................] - ETA: 22s - loss: 0.0121 - accuracy: 1.0000
+ 9/92 [=>............................] - ETA: 21s - loss: 0.0124 - accuracy: 1.0000
+10/92 [==>...........................] - ETA: 21s - loss: 0.0160 - accuracy: 0.9969
+11/92 [==>...........................] - ETA: 21s - loss: 0.0170 - accuracy: 0.9972
+12/92 [==>...........................] - ETA: 21s - loss: 0.0172 - accuracy: 0.9974
+13/92 [===>..........................] - ETA: 20s - loss: 0.0166 - accuracy: 0.9976
+14/92 [===>..........................] - ETA: 20s - loss: 0.0155 - accuracy: 0.9978
+15/92 [===>..........................] - ETA: 20s - loss: 0.0149 - accuracy: 0.9979
+16/92 [====>.........................] - ETA: 20s - loss: 0.0150 - accuracy: 0.9980
+17/92 [====>.........................] - ETA: 19s - loss: 0.0179 - accuracy: 0.9963
+18/92 [====>.........................] - ETA: 19s - loss: 0.0193 - accuracy: 0.9948
+19/92 [=====>........................] - ETA: 19s - loss: 0.0190 - accuracy: 0.9951
+20/92 [=====>........................] - ETA: 19s - loss: 0.0193 - accuracy: 0.9953
+21/92 [=====>........................] - ETA: 18s - loss: 0.0188 - accuracy: 0.9955
+22/92 [======>.......................] - ETA: 18s - loss: 0.0191 - accuracy: 0.9957
+23/92 [======>.......................] - ETA: 18s - loss: 0.0199 - accuracy: 0.9946
+24/92 [======>.......................] - ETA: 18s - loss: 0.0230 - accuracy: 0.9935
+25/92 [=======>......................] - ETA: 17s - loss: 0.0223 - accuracy: 0.9937
+26/92 [=======>......................] - ETA: 17s - loss: 0.0240 - accuracy: 0.9916
+27/92 [=======>......................] - ETA: 17s - loss: 0.0235 - accuracy: 0.9919
+28/92 [========>.....................] - ETA: 16s - loss: 0.0255 - accuracy: 0.9911
+29/92 [========>.....................] - ETA: 16s - loss: 0.0249 - accuracy: 0.9914
+30/92 [========>.....................] - ETA: 16s - loss: 0.0257 - accuracy: 0.9906
+31/92 [=========>....................] - ETA: 16s - loss: 0.0268 - accuracy: 0.9899
+32/92 [=========>....................] - ETA: 15s - loss: 0.0271 - accuracy: 0.9893
+33/92 [=========>....................] - ETA: 15s - loss: 0.0265 - accuracy: 0.9896
+34/92 [==========>...................] - ETA: 15s - loss: 0.0261 - accuracy: 0.9899
+35/92 [==========>...................] - ETA: 15s - loss: 0.0259 - accuracy: 0.9902
+36/92 [==========>...................] - ETA: 14s - loss: 0.0262 - accuracy: 0.9905
+37/92 [===========>..................] - ETA: 14s - loss: 0.0258 - accuracy: 0.9907
+38/92 [===========>..................] - ETA: 14s - loss: 0.0252 - accuracy: 0.9910
+39/92 [===========>..................] - ETA: 14s - loss: 0.0247 - accuracy: 0.9912
+40/92 [============>.................] - ETA: 13s - loss: 0.0246 - accuracy: 0.9914
+41/92 [============>.................] - ETA: 13s - loss: 0.0242 - accuracy: 0.9916
+42/92 [============>.................] - ETA: 13s - loss: 0.0239 - accuracy: 0.9918
+43/92 [=============>................] - ETA: 12s - loss: 0.0234 - accuracy: 0.9920
+44/92 [=============>................] - ETA: 12s - loss: 0.0239 - accuracy: 0.9915
+45/92 [=============>................] - ETA: 12s - loss: 0.0257 - accuracy: 0.9910
+46/92 [==============>...............] - ETA: 12s - loss: 0.0258 - accuracy: 0.9912
+47/92 [==============>...............] - ETA: 11s - loss: 0.0269 - accuracy: 0.9900
+48/92 [==============>...............] - ETA: 11s - loss: 0.0295 - accuracy: 0.9896
+49/92 [==============>...............] - ETA: 11s - loss: 0.0289 - accuracy: 0.9898
+50/92 [===============>..............] - ETA: 11s - loss: 0.0289 - accuracy: 0.9900
+51/92 [===============>..............] - ETA: 10s - loss: 0.0287 - accuracy: 0.9902
+52/92 [===============>..............] - ETA: 10s - loss: 0.0286 - accuracy: 0.9904
+53/92 [================>.............] - ETA: 10s - loss: 0.0282 - accuracy: 0.9906
+54/92 [================>.............] - ETA: 10s - loss: 0.0279 - accuracy: 0.9907
+55/92 [================>.............] - ETA: 9s - loss: 0.0279 - accuracy: 0.9909 
+56/92 [=================>............] - ETA: 9s - loss: 0.0280 - accuracy: 0.9911
+57/92 [=================>............] - ETA: 9s - loss: 0.0277 - accuracy: 0.9912
+58/92 [=================>............] - ETA: 8s - loss: 0.0314 - accuracy: 0.9903
+59/92 [==================>...........] - ETA: 8s - loss: 0.0313 - accuracy: 0.9905
+60/92 [==================>...........] - ETA: 8s - loss: 0.0310 - accuracy: 0.9906
+61/92 [==================>...........] - ETA: 8s - loss: 0.0306 - accuracy: 0.9908
+62/92 [===================>..........] - ETA: 7s - loss: 0.0303 - accuracy: 0.9909
+63/92 [===================>..........] - ETA: 7s - loss: 0.0343 - accuracy: 0.9901
+64/92 [===================>..........] - ETA: 7s - loss: 0.0339 - accuracy: 0.9902
+65/92 [====================>.........] - ETA: 7s - loss: 0.0340 - accuracy: 0.9899
+66/92 [====================>.........] - ETA: 6s - loss: 0.0344 - accuracy: 0.9896
+67/92 [====================>.........] - ETA: 6s - loss: 0.0342 - accuracy: 0.9897
+68/92 [=====================>........] - ETA: 6s - loss: 0.0337 - accuracy: 0.9899
+69/92 [=====================>........] - ETA: 6s - loss: 0.0335 - accuracy: 0.9900
+70/92 [=====================>........] - ETA: 5s - loss: 0.0331 - accuracy: 0.9902
+71/92 [======================>.......] - ETA: 5s - loss: 0.0329 - accuracy: 0.9903
+72/92 [======================>.......] - ETA: 5s - loss: 0.0324 - accuracy: 0.9905
+73/92 [======================>.......] - ETA: 5s - loss: 0.0324 - accuracy: 0.9906
+74/92 [=======================>......] - ETA: 4s - loss: 0.0320 - accuracy: 0.9907
+75/92 [=======================>......] - ETA: 4s - loss: 0.0320 - accuracy: 0.9908
+76/92 [=======================>......] - ETA: 4s - loss: 0.0322 - accuracy: 0.9905
+77/92 [========================>.....] - ETA: 3s - loss: 0.0319 - accuracy: 0.9907
+78/92 [========================>.....] - ETA: 3s - loss: 0.0317 - accuracy: 0.9908
+79/92 [========================>.....] - ETA: 3s - loss: 0.0314 - accuracy: 0.9909
+80/92 [=========================>....] - ETA: 3s - loss: 0.0311 - accuracy: 0.9910
+81/92 [=========================>....] - ETA: 2s - loss: 0.0307 - accuracy: 0.9911
+82/92 [=========================>....] - ETA: 2s - loss: 0.0304 - accuracy: 0.9912
+83/92 [==========================>...] - ETA: 2s - loss: 0.0301 - accuracy: 0.9913
+84/92 [==========================>...] - ETA: 2s - loss: 0.0298 - accuracy: 0.9914
+85/92 [==========================>...] - ETA: 1s - loss: 0.0295 - accuracy: 0.9915
+86/92 [===========================>..] - ETA: 1s - loss: 0.0296 - accuracy: 0.9916
+87/92 [===========================>..] - ETA: 1s - loss: 0.0294 - accuracy: 0.9917
+88/92 [===========================>..] - ETA: 1s - loss: 0.0294 - accuracy: 0.9918
+89/92 [============================>.] - ETA: 0s - loss: 0.0295 - accuracy: 0.9916
+90/92 [============================>.] - ETA: 0s - loss: 0.0292 - accuracy: 0.9917
+91/92 [============================>.] - ETA: 0s - loss: 0.0290 - accuracy: 0.9918
+92/92 [==============================] - ETA: 0s - loss: 0.0288 - accuracy: 0.9918
+92/92 [==============================] - 30s 328ms/step - loss: 0.0288 - accuracy: 0.9918 - val_loss: 0.2576 - val_accuracy: 0.9183
+```
+
+## 모형 추론
+
+```{python, eval = FALSE}
+import cv2
+
+data_dir = pathlib.Path("data/flower_photos")
+roses = list(data_dir.glob('roses/*'))
+class_names = train_ds.class_names
+
+image = cv2.imread(str(roses[0]))
+image_resized = cv2.resize(image, (img_height,img_width))
+image = np.expand_dims(image_resized, axis=0)
+
+pred=efficient_model.predict(image)
+# 1/1 [==============================] - ETA: 0s
+# 1/1 [==============================] - 0s 38ms/step
+
+output_class=class_names[np.argmax(pred)]
+print("The predicted class is", output_class)
+# The predicted class is roses
+```
+
+```{r}
+library(magick)
+
+image_read("data/flower_photos/roses/10090824183_d02c613f10_m.jpg")
+```
 
