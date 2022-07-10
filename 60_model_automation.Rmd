@@ -1,0 +1,66 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "딥러닝 모형 개발 자동화"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# 6단계 autoML 
+
+[Bojan Tunguz (Jan 23, 2020), "Six Levels of Auto ML", medium.com](https://medium.com/@tunguz/six-levels-of-auto-ml-a277aa1f0f38)
+
+<div class = "row">
+  <div class = "col-md-6">
+**자율주행**
+
+- Level 0: Automated system issues warnings and may momentarily intervene but has no sustained vehicle control.
+- Level 1 (“hands on”): The driver and the automated system share control of the vehicle. Examples are Adaptive Cruise Control and Parking Assistance
+- Level 2 (“hands off”): The automated system takes full control of the vehicle (accelerating, braking, and steering).
+- Level 3 (“eyes off”): The driver can safely turn their attention away from the driving tasks, e.g. the driver can text or watch a movie.
+- Level 4 (“mind off”): As level 3, but no driver attention is ever required for safety, e.g. the driver may safely go to sleep or leave the driver’s seat.
+- Level 5 (“steering wheel optional”): No human intervention is required at all. An example would be a robotic taxi.
+
+  </div>
+  <div class = "col-md-6">
+**autoML**
+
+- Level 0: No automation. You code your own ML algorithms. From scratch. In C++.
+- Level 1: Use of high-level algorithm APIs. Sklearn, Keras, Pandas, H2O, XGBoost, etc.
+- Level 2: Automatic hyperparameter tuning and ensembling. Basic model selection.
+- Level 3: Automatic (technical) feature engineering and feature selection, technical data augmentation, GUI.
+- Level 4: Automatic domain and problem specific feature engineering, data augmentation, and data integration.
+- Level 5: Full ML Automation. Ability to come up with super-human strategies for solving hard ML problems without any input or guidance. Fully conversational interaction with the human user.
+
+  </div>
+</div>
+
+# 
