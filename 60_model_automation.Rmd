@@ -63,6 +63,45 @@ library(tidyverse)
   </div>
 </div>
 
+## MLOps
+
+![](assets/automation/mlops-paradigm.png)
+
+- **MLOPS** 25% 규칙
+    - 데이터 25%
+    - 비즈니스 25%
+    - 모형 25%
+    - DevOps 25%
+
+
+## 모형 공장
+
+![](assets/automation/model_factory.png)
+
+## 개념과 데이터 Drift
+
+- Concept Drift
+- Label Drift
+- Feature Drift
+
+![](assets/automation/concept_data_drift.png)
+
+- https://www.fiddler.ai/blog/drift-in-machine-learning-how-to-identify-issues-before-you-have-a-problem
+- https://twitter.com/kdimensions1/status/1442096041201844228?s=20&t=hPl7rxBTrdpqNE5T9lqO7w
+- https://www.youtube.com/watch?v=q_shb4Lyqg0
+
+## Drift 유형
+
+![](assets/automation/drift_type.png)
+
+## Drift 탐지
+
+![](assets/automation/drift_detection_system.jpg)
+
+Lu, Jie, et al. "Learning under concept drift: A review." IEEE Transactions on Knowledge and Data Engineering 31.12 (2018): 2346-2363. [다운로드](https://arxiv.org/pdf/2004.05785.pdf)
+
+
+
 # AutoKeras {#install-autokeras}
 
 [AutoKeras](https://autokeras.com/)는 Texas A&M 대학에서 개발한 Keras 에 기반한
