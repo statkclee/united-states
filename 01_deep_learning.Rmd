@@ -1,0 +1,86 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "딥러닝 2.0"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# 딥러닝 2.0
+
+- Transformers
+- Transfer Learning
+- 딥러닝 하드웨어
+- 딥러닝 프레임워크
+
+[유튜브 동영상: FourthBrain and Hugging Face demo on Building NLP Applications with Transformers](https://www.youtube.com/watch?v=1v4Ut7umOUw)
+[슬라이드: FourthBrain and Hugging Face demo on Building NLP Applications with Transformers](https://www.slideshare.net/JulienSIMON5/building-nlp-applications-with-transformers)
+[Julien Simon, Chief Evangelist, Hugging Face](https://julsimon.medium.com/)
+
+
+# Transformers
+
+[Lewis Tunstall, Leandro von Werra, Thomas Wolf (2022), "Natural Language Processing with Transformers_ Building Language Applications with Hugging Face", O'Reilly Media](https://www.amazon.com/Natural-Language-Processing-Transformers-Applications/dp/1098103246)
+
+![](assets/automation/transformers.jpg)
+
+## 구성요소 {.tabset}
+
+### Attention
+
+![](assets/automation/multihead_attention.jpg)
+
+### Scaled dot-product attention
+
+![](assets/automation/operations.jpg)
+
+### 인코더
+
+![](assets/automation/transformers-encoder.jpg)
+
+### 디코더
+
+![](assets/automation/transformers-decoder.jpg)
+
+
+
+## 연대기
+
+![](assets/automation/transformer_timeline.jpg)
+
+## 아키텍쳐
+
+![](assets/automation/transformers_architecture.jpg)
+
+## 라벨 데이터
+
+![](assets/automation/few_shot_learning.jpg)
+

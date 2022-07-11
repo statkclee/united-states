@@ -117,6 +117,13 @@ deep_learning_list <- list(
     text = "딥러닝 모형 개발 자동화",
     link = "60_model_automation.html",
     footer = "2022-07-10"
+  ),
+  tibble(
+    title = "딥러닝 2.0",
+    image = "assets/favicon-deep-learning.png",
+    text = "딥러닝 2.0 - Transfer Learning, Transformers, 하드웨어, 딥러닝 프레임워크",
+    link = "01_deep_learning.html",
+    footer = "2022-07-11"
   )  
 )
 
