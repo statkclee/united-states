@@ -216,3 +216,75 @@ cv2.destroyAllWindows()
 
 ```
 
+# 허깅페이스
+
+```{python}
+## Transformers 버전이 낮은 경우 YolosFeatureExtractor 가 없음
+import transformers
+print(transformers.__version__)
+
+from transformers import YolosFeatureExtractor, YolosForObjectDetection
+from PIL import Image
+import requests
+import io
+import torch
+import matplotlib.pyplot as plt
+
+url_input = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+image = Image.open(requests.get(url_input, stream=True).raw)
+
+# https://huggingface.co/spaces/imkaushalpatel/YOLOv5/blame/754ef7b10ecd5c4c2db55fcb9240361e82066c6a/app.py
+
+feature_extractor = YolosFeatureExtractor.from_pretrained('hustvl/yolos-tiny')
+yolo_model = YolosForObjectDetection.from_pretrained('hustvl/yolos-tiny')
+
+def fig2img(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+    img = Image.open(buf)
+    return img
+
+# colors for visualization
+COLORS = [
+    [0.000, 0.447, 0.741],
+    [0.850, 0.325, 0.098],
+    [0.929, 0.694, 0.125],
+    [0.494, 0.184, 0.556],
+    [0.466, 0.674, 0.188],
+    [0.301, 0.745, 0.933]
+]
+
+def make_prediction(img, feature_extractor, model):
+    inputs = feature_extractor(img, return_tensors="pt")
+    outputs = model(**inputs)
+    img_size = torch.tensor([tuple(reversed(img.size))])
+    processed_outputs = feature_extractor.post_process(outputs, img_size)
+    return processed_outputs[0]
+
+def visualize_prediction(pil_img, output_dict, threshold=0.7, id2label=None):
+    keep = output_dict["scores"] > threshold
+    boxes = output_dict["boxes"][keep].tolist()
+    scores = output_dict["scores"][keep].tolist()
+    labels = output_dict["labels"][keep].tolist()
+    if id2label is not None:
+        labels = [id2label[x] for x in labels]
+
+    plt.figure(figsize=(16, 10))
+    plt.imshow(pil_img)
+    ax = plt.gca()
+    colors = COLORS * 100
+    for score, (xmin, ymin, xmax, ymax), label, color in zip(scores, boxes, labels, colors):
+        ax.add_patch(plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, fill=False, color=color, linewidth=3))
+        ax.text(xmin, ymin, f"{label}: {score:0.2f}", fontsize=15, bbox=dict(facecolor="yellow", alpha=0.5))
+    plt.axis("off")
+    return fig2img(plt.gcf())
+  
+processed_outputs = make_prediction(image, feature_extractor, yolo_model)  
+threshold = 0.7
+
+viz_img = visualize_prediction(image, processed_outputs, threshold, yolo_model.config.id2label)
+
+plt.show()
+```
+
