@@ -1,0 +1,218 @@
+---
+layout: page
+title: "20분만에 끝내는 딥러닝"
+subtitle: "X-Shot Learning"
+author:
+  name: "[한국 R 사용자회](https://r2bit.com/)"
+output:
+  html_document: 
+    theme:
+      version: 4
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+urlcolor: blue
+linkcolor: bluee
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+header-includes: 
+  - \usepackage{tikz}
+  - \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+---
+
+```{r setup, include=FALSE}
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,
+                    comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+```
+
+# KNN - 펭귄 데이터
+
+## 펭귄 종 예측 모형
+
+```{r palmerpenguins}
+# 0. 패키기 ----------------------
+library(tidymodels)
+library(tidyverse)
+library(palmerpenguins)
+library(themis)
+library(kknn)
+
+# 1. 데이터 ----------------------
+set.seed(999)
+
+penguins_tbl <- penguins %>% 
+  
+  drop_na()
+
+# 2. 훈련/시험 데이터 분할 ----------------------
+penguin_split <- initial_split(penguins_tbl, strata = species )
+
+penguin_train <- training(penguin_split)
+
+penguin_test <- testing(penguin_split)
+
+# 3. Feature Engineering ----------------------
+## 3.1. 훈련 데이터
+penguin_rec <- recipe(species ~., data = penguin_train) %>%
+  # class unbalance
+  themis::step_downsample(species) %>% 
+  # 정규화
+  step_normalize(all_numeric()) %>% 
+  # 비법을 데이터에 적용
+  prep()
+
+tbl_train <- juice(penguin_rec) # 데이터만 추출
+
+## 3.2. 시험 데이터
+tbl_test <- bake(penguin_rec, new_data = penguin_test)
+
+# 4. 학습 ------------------------
+
+knn_spec <- nearest_neighbor() %>% 
+  set_engine("kknn") %>% 
+  set_mode("classification")
+
+knn_fit <- knn_spec %>% 
+  fit(species ~., data = tbl_train)
+
+knn_fit
+
+# 5. 평가 ------------------------
+knn_fit %>% 
+  predict(tbl_test) %>% 
+  bind_cols(tbl_test) %>% 
+  metrics(truth = species, estimate = .pred_class)
+
+knn_fit %>% 
+  predict(tbl_test) %>% 
+  bind_cols(tbl_test) %>% 
+  conf_mat(truth = species, estimate = .pred_class)
+
+knn_fit %>%
+  # 펭귄 종 예측 확률
+  predict(tbl_test, type = "prob") %>% 
+  bind_cols(tbl_test) %>%
+  # 시각화
+  # gain_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+  roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+  autoplot() +
+    theme_light()
+```
+
+## 펭귄 종 예측 모형
+
+```{r predict-new-penguin}
+
+new_penguin <- tbl_test %>% 
+  slice_sample(n = 1)
+
+knn_fit %>% 
+  predict(new_penguin) %>% 
+  bind_cols(knn_fit %>% predict(new_penguin, type = "prob")  )
+```
+
+
+# 샴 네트워크
+
+[GitHub, "Hands-On-One-shot-Learning-with-Python"](https://github.com/PacktPublishing/Hands-On-One-shot-Learning-with-Python)
+
+```{python, eval = FALSE}
+
+# Siamese Network Architecture
+
+```
+
+
+# YOLO
+
+## 사물 탐지(Object Detection) 기법
+
+[Lentin Joseph (2020-05-01), "A Gentle Introduction to YOLO v4 for Object detection in Ubuntu 20.04", ROBOCADEMY](https://robocademy.com/2020/05/01/a-gentle-introduction-to-yolo-v4-for-object-detection-in-ubuntu-20-04/)
+
+
+<div class = "row">
+  <div class = "col-md-6">
+**기계학습(Machine Learning)**
+
+- Viola-Jones object detection based on Haar features
+- SIFT (Scale-invariant feature transform)
+- HOG (Histogram of oriented gradients)
+
+
+  </div>
+  <div class = "col-md-6">
+  
+**딥러닝(Deep Learning)**
+
+- R-CNN
+- You Only Look Once(YOLO)
+- Single Shot MultiBox Detector (SSD)
+
+  </div>
+</div>
+
+## 사물 탐지 활용
+
+- Optical Character recognition(OCR)
+- Self-driving cars
+- Verification using face and IRIS code
+- Robotics
+- Object tracking and counting
+
+
+# 코드
+
+## R
+
+[딥러닝 - YOLO: 객체 탐지](https://aispiration.com/deep-learning/r-captcha-yolo.html)
+
+## 파이썬
+
+- [Mauro Di Pietro (May 27, 2020), "Object Detection with Python & YOLO - Computer Vision with your Webcam"](https://medium.com/towards-data-science/how-to-detect-objects-with-your-webcam-82693c47bd8)
+
+```{python yolo-python, eval = FALSE}
+## YOLO 모형 다운로드 설치
+modelpath = "mycomputer/myfolder/yolo.h5"
+
+from imageai import Detection
+yolo = Detection.ObjectDetection()
+yolo.setModelTypeAsYOLOv3()
+yolo.setModelPath(modelpath)
+yolo.loadModel()
+
+## 비디오 실행
+import cv2
+cam = cv2.VideoCapture(0) #0=front-cam, 1=back-cam
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1300)
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1500)
+
+while True:
+    ## read frames
+    ret, img = cam.read()
+    ## predict yolo
+    img, preds = yolo.detectCustomObjectsFromImage(input_image=img,
+                      custom_objects=None, input_type="array",
+                      output_type="array",
+                      minimum_percentage_probability=70,
+                      display_percentage_probability=False,
+                      display_object_name=True)
+    ## display predictions
+    cv2.imshow("", img)
+    ## press q or Esc to quit    
+    if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27):
+        break
+## close camera
+cam.release()
+cv2.destroyAllWindows()
+
+```
+
