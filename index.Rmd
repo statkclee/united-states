@@ -147,7 +147,7 @@ deep_learning_tbl %>%
     image = image,
     footer = footer,
     layout = "label-left", 
-    width = 2
+    width = 3
   )
 ```
  
