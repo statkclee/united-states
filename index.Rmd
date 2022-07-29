@@ -138,8 +138,18 @@ deep_learning_list <- list(
     text = "사설 클라우드(Private Cloud), NAS, 홈 네트워크",
     link = "private_cloud.html",
     footer = "2022-07-29"
+  ),
+  tibble(
+    title = "NAS",
+    image = "assets/favicon_nas.png",
+    text = "시놀로지 NAS",
+    link = "synology_nas.html",
+    footer = "2022-07-29"
   )  
 )
+
+
+
 
 
 deep_learning_tbl <- deep_learning_list %>% 
