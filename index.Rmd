@@ -145,6 +145,13 @@ deep_learning_list <- list(
     text = "시놀로지 NAS",
     link = "synology_nas.html",
     footer = "2022-07-29"
+  ),
+  tibble(
+    title = "허깅페이스",
+    image = "assets/favicon_hf.png",
+    text = "허깅페이스(모형, 데이터셋) ...",
+    link = "huggingface.html",
+    footer = "2022-07-30"
   )  
 )
 
