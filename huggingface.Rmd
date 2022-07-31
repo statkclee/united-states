@@ -223,3 +223,261 @@ DatasetDict({
 })
 ```
 
+
+# HF 파이프라인
+
+## 모형/데이터 저장위치
+
+허깅페이스 캐쉬 저장소를 지정하는 방식은 크게 3가지로 나눠진다.
+
+- 파이썬 내 환경설정
+
+```
+import os
+os.environ['TRANSFORMERS_CACHE'] = '/blabla/cache/'
+```
+
+- 배쉬(bash) 환경설정
+    - `export TRANSFORMERS_CACHE=/blabla/cache/`
+- 딥러닝 코드에서 직접 지정
+
+```
+tokenizer = AutoTokenizer.from_pretrained("roberta-base", cache_dir="new_cache_dir/")
+
+model = AutoModelForMaskedLM.from_pretrained("roberta-base", cache_dir="new_cache_dir/")
+```
+
+## NLP 기본기
+
+
+[Hugging Face Course](https://www.youtube.com/playlist?list=PLo2EIpI_JMQtNtKNFFSMNIZwspj8H7-sQ)에 담기 내용을 바탕으로 자세히 살펴보자.
+
+### 감성분석
+
+`distilbert-base-uncased-finetuned-sst-2-english` 학습된 모형으로 문장에 
+담긴 감성을 분석한다. 허깅페이스 캐쉬 디렉토리에 저장된 'z:/dataset/hf' 에서
+모형을 가져와서 감성분석을 진행한다.
+
+```{python}
+# ! pip install datasets transformers[sentencepiece]
+
+import os
+os.environ['TRANSFORMERS_CACHE'] = 'z:/dataset/hf'
+
+from transformers import pipeline
+
+classifier = pipeline("sentiment-analysis")
+                      
+classifier(
+    [
+        "I've been waiting for a HuggingFace course my whole life.",
+        "I hate this so much!",
+        "We are very happy to show you the 🤗 Transformers library.", 
+        "We hope you don't hate it."
+    ]
+)
+```
+
+한단계 더 들어가 tokenizer와 model을 각기 달리하여 파이프라인을 구성한 후에 
+문장에 대한 감성을 파악할 수 있다.
+
+![](assets/dl_2/full_nlp_pipeline.svg)
+
+```{python, eval = FALSE}
+from transformers import AutoTokenizer
+from transformers import AutoModelForSequenceClassification
+
+model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir="z:/dataset/hf")
+
+model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+pt_model = AutoModelForSequenceClassification.from_pretrained(model_name,
+           cache_dir="z:/dataset/hf")
+
+classifier = pipeline("sentiment-analysis",
+                       model = pt_model,
+                       tokenizer = tokenizer)
+                      
+classifier(
+    [
+        "지금 기분이 좋습니다.",
+        "나는 행복합니다",
+        "무척이나 슬프고 서럽습니다",
+        "영화가 그저그렇다."
+    ]
+)
+ 
+# [{'label': '4 stars', 'score': 0.3802778422832489}, {'label': '5 stars', 'score': 0.5900374054908752}, {'label': '1 star', 'score': 0.5471497774124146}, {'label': '3 stars', 'score': 0.3373289406299591}]
+
+```
+
+
+### 주제 분류
+
+주어진 문장이 어떤 주제로 분류되는지를 `facebook/bart-large-mnli` 사전학습모형으로
+분류할 수 있다. [facebook/bart-large-mnli](https://huggingface.co/facebook/bart-large-mnli)에서 자세한 사항을 확인할 수 있다.
+
+```{python, eval = FALSE}
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers import pipeline
+
+nli_model = AutoModelForSequenceClassification.from_pretrained('facebook/bart-large-mnli',
+            cache_dir="z:/dataset/hf")
+            
+tokenizer = AutoTokenizer.from_pretrained('facebook/bart-large-mnli',
+            cache_dir="z:/dataset/hf")
+
+classifier = pipeline('zero-shot-classification',
+                       model     = nli_model,
+                       tokenizer = tokenizer)
+                       
+sequence_to_classify = "one day I will see the world"
+candidate_labels = ['travel', 'cooking', 'dancing']
+classifier(sequence_to_classify, candidate_labels,  multi_label=True)
+# {'sequence': 'one day I will see the world', 'labels': ['travel', 'dancing', 'cooking'], 'scores': [0.994511067867279, 0.005706145893782377, 0.0018192846328020096]}
+```
+
+### 텍스트 생성
+
+[gpt2](https://huggingface.co/gpt2)를 사용해서 텍스트를 생성할 수 있다.
+
+```{python, eval = FALSE}
+from transformers import pipeline, set_seed
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+
+gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2', cache_dir="z:/dataset/hf")
+gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2', cache_dir="z:/dataset/hf")
+
+generator = pipeline('text-generation', 
+                      tokenizer = gpt2_tokenizer,
+                      model     = gpt2_model)
+set_seed(777)
+generator("The White man worked as a", max_length=12, num_return_sequences=3)
+# [{'generated_text': 'The White man worked as a janitor, a regular office'}, {'generated_text': 'The White man worked as a sales rep for the paper.'}, {'generated_text': 'The White man worked as a contractor for Waffle House in'}]
+
+generator("In this course, we will teach you how to", max_length=20, num_return_sequences=3)
+
+# [{'generated_text': 'In this course, we will teach you how to create a reusable, self-sustaining app'}, {'generated_text': 'In this course, we will teach you how to create a perfect web application.'}, {'generated_text': 'In this course, we will teach you how to use both the HN and the NN channels'}]
+```
+
+
+### 빈칸 채워넣기
+
+`BertForMaskedLM` 모형을 사용해서 `[MASK]` 빈칸 채워넣기를 할 수 있다.
+
+```{python, eval = FALSE}
+from transformers import pipeline, set_seed
+from transformers import  BertTokenizer, BertForMaskedLM
+
+fill_mask_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', cache_dir="z:/dataset/hf/mask")
+fill_mask_model = BertForMaskedLM.from_pretrained("bert-base-uncased", cache_dir="z:/dataset/hf/mask")
+
+unmasker = pipeline('fill-mask', 
+                     tokenizer = fill_mask_tokenizer,
+                     model = fill_mask_model)
+                     
+unmasker("The White man worked as a [MASK].", top_k = 3)
+# [{'score': 0.16597844660282135, 'token': 10533, 'token_str': 'c a r p e n t e r', 'sequence': 'the white man worked as a carpenter.'}, {'score': 0.09424988180398941, 'token': 7500, 'token_str': 'f a r m e r', 'sequence': 'the white man worked as a farmer.'}, {'score': 0.07112522423267365, 'token': 20987, 'token_str': 'b l a c k s m i t h', 'sequence': 'the white man worked as a blacksmith.'}]
+
+unmasker("The black woman worked as a [MASK].", top_k = 3)
+# [{'score': 0.21546946465969086, 'token': 6821, 'token_str': 'n u r s e', 'sequence': 'the black woman worked as a nurse.'}, {'score': 0.19593699276447296, 'token': 13877, 'token_str': 'w a i t r e s s', 'sequence': 'the black woman worked as a waitress.'}, {'score': 0.09739767760038376, 'token': 10850, 'token_str': 'm a i d', 'sequence': 'the black woman worked as a maid.'}]
+
+unmasker("The Asian worked as a [MASK].", top_k = 3)
+# [{'score': 0.12938520312309265, 'token': 7500, 'token_str': 'f a r m e r', 'sequence': 'the asian worked as a farmer.'}, {'score': 0.09072186052799225, 'token': 3836, 'token_str': 't e a c h e r', 'sequence': 'the asian worked as a teacher.'}, {'score': 0.039076220244169235, 'token': 10533, 'token_str': 'c a r p e n t e r', 'sequence': 'the asian worked as a carpenter.'}]
+
+unmasker("The Korean worked as a [MASK].", top_k = 3)
+# [{'score': 0.11826611310243607, 'token': 7500, 'token_str': 'f a r m e r', 'sequence': 'the korean worked as a farmer.'}, {'score': 0.09532739222049713, 'token': 3836, 'token_str': 't e a c h e r', 'sequence': 'the korean worked as a teacher.'}, {'score': 0.04381617531180382, 'token': 5160, 'token_str': 'l a w y e r', 'sequence': 'the korean worked as a lawyer.'}]
+```
+
+
+### 질의응답
+
+`SQuAD2.0` 데이터셋에 기반한 
+[deepset/roberta-base-squad2](https://huggingface.co/deepset/roberta-base-squad2) 모형을 바탕으로 
+질의응답을 구현할 수 있다.
+
+```{python, eval = FALSE}
+from transformers import pipeline
+from transformers import AutoModelForQuestionAnswering, AutoTokenizer
+
+qna_tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2",
+                cache_dir="z:/dataset/pretrained/")
+
+qna_model = AutoModelForQuestionAnswering.from_pretrained("deepset/roberta-base-squad2",              
+            cache_dir="z:/dataset/pretrained/")
+
+qNa = pipeline('question-answering', 
+                model=qna_model,
+                tokenizer=qna_tokenizer) 
+
+
+paragraph = '''
+A new study estimates that if the US had universally mandated masks on 1 April, there could have been nearly 40% fewer deaths by the start of June. Containment policies had a large impact on the number of COVID-19 cases and deaths, directly by reducing transmission rates and indirectly by constraining people’s behaviour. They account for roughly half the observed change in the growth rates of cases and deaths.
+'''
+
+qNa({'question': 'Which country is this article about?',
+     'context': f'{paragraph}'})
+# {'score': 0.019898569211363792, 'start': 35, 'end': 37, 'answer': 'US'}
+qNa({'question': 'Which disease is discussed in this article?',
+     'context': f'{paragraph}'})
+# {'score': 0.00024747499264776707, 'start': 206, 'end': 214, 'answer': 'COVID-19'}
+```
+
+### 번역
+
+[Helsinki-NLP/opus-mt-ko-en](https://huggingface.co/Helsinki-NLP/opus-mt-ko-en) 모델은
+한글을 입력받아 영어로 번역한다.
+
+```{python, eval = FALSE}
+from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+translator_tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-ko-en",
+                cache_dir="z:/dataset/hf/")
+
+translator_model = AutoModelForSeq2SeqLM.from_pretrained("Helsinki-NLP/opus-mt-ko-en",              
+            cache_dir="z:/dataset/hf/")
+
+
+translator = pipeline("translation", 
+                      tokenizer = translator_tokenizer,
+                      model =  translator_model)
+                      
+translator("대한민국 축구가 드디어 독일을 격파했습니다.")
+# [{'translation_text': 'South Korean football finally destroyed Germany.'}]
+translator("President Yoon did a great work in Korean history")
+# [{'translation_text': 'President Yoon did a great job in Coran history'}]
+```
+
+### 텍스트 요약
+
+CNN Daily Mail 데이터를 기반으로 하고 있는
+[facebook/bart-large-cnn](https://huggingface.co/facebook/bart-large-cnn) 모델을
+활용하여 문단을 요약한다.
+
+```{python, eval = FALSE}
+from transformers import pipeline
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+summary_tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn",
+                                                  cache_dir="z:/dataset/hf/")
+                                          
+summary_model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn",
+                                          cache_dir="z:/dataset/hf/")
+
+
+summarizer = pipeline("summarization", 
+                      model = summary_model,
+                      tokenizer = summary_tokenizer)
+
+paragraph = '''
+A new study estimates that if the US had universally mandated masks on 1 April, there could have been nearly 40% fewer deaths by the start of June. Containment policies had a large impact on the number of COVID-19 cases and deaths, directly by reducing transmission rates and indirectly by constraining people’s behaviour. They account for roughly half the observed change in the growth rates of cases and deaths.
+'''
+                      
+summarizer(paragraph, max_length=50, min_length=30, do_sample=False)
+
+```
+
+```
+[{'summary_text': 'Study estimates that if the US had universally mandated masks on 1 April, there could have been nearly 40% fewer deaths by the start of June. Containment policies had a large impact on the number of COVID-19 cases and deaths'}]
+```
