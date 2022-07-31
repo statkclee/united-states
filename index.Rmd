@@ -148,10 +148,17 @@ deep_learning_list <- list(
   ),
   tibble(
     title = "허깅페이스",
-    image = "assets/favicon_hf.png",
-    text = "허깅페이스(모형, 데이터셋) ...",
+    image = "assets/favicon-hf.png",
+    text = "허깅페이스(모형, 데이터셋) ... NLP(Transformers)",
     link = "huggingface.html",
     footer = "2022-07-30"
+  ),
+  tibble(
+    title = "ML 자동화",
+    image = "assets/favicon-mlops.png",
+    text = "CML, DVC, MLOps, ...",
+    link = "mlops_dvc.html",
+    footer = "2022-07-31"
   )  
 )
 
