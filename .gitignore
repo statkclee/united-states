@@ -6,3 +6,5 @@ data/dogs-vs-cats
 data/FashionMNIST
 data/twitter_bert_80
 data/flower_photos
+data/ludwig/rotten_tomatoes.csv
+results/
